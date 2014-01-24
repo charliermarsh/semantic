@@ -1,3 +1,4 @@
+import re
 import quantities as pq
 from numbers import NumberService
 
@@ -7,9 +8,7 @@ class ConversionService(object):
     @staticmethod
     def preprocess(input):
         # 'per' --> '/'
-        input = re.sub(r'\sper\s', r'\s/\s', input)
-        # 'one hundred and eleven' --> 'one hundred eleven'
-        input = re.sub(r'\sand\s', r' ', input)
+        input = re.sub(r'\sper\s', r' / ', input)
         return input
 
     @staticmethod
@@ -46,6 +45,7 @@ class ConversionService(object):
         magString = re.sub(r'(\d)e\+(\d+)',
                            '\g<1> times ten to the \g<2>', magString)
         magString = re.sub(r'-(\d+)', 'negative \g<1>', magString)
+        magString = re.sub(r'\b0(\d+)', '\g<1>', magString)
         return magString
 
     def parseUnits(self, input):
@@ -54,60 +54,46 @@ class ConversionService(object):
             returns the result as a human-ready string.
         """
         quantity = self.convert(input)
-        return ConversionService.parseMagnitude(quantity.item()) + " " + quantity.units
+        units = ' '.join(str(quantity.units).split(' ')[1:])
+        return ConversionService.parseMagnitude(quantity.item()) + " " + units
 
     def convert(self, input):
         """
             Converts a string representation of some quantity of units
             and converts it to a quantities object.
         """
-        split = ConversionService.preprocess(input).split(' ')
+        input = ConversionService.preprocess(input)
 
         # Collect consecutive runs of units
         def isValidUnit(w):
+            if w == 'point':
+                return False
+
             try:
                 pq.Quantity(0.0, w)
                 return True
             except:
                 return w == '/'
 
-        units = []
-        desc = ""
-        for w in split:
-            if isValidUnit(w):
-                if desc:
-                    desc += " "
-                desc += w
-            else:
-                if desc:
-                    units.append(desc)
-                desc = ""
+        def extractUnits(input):
+            units = []
+            description = ""
+            for w in input.split(' '):
+                if isValidUnit(w):
+                    if description:
+                        description += " "
+                    description += w
+                else:
+                    if description:
+                        units.append(description)
+                    description = ""
 
-        if desc:
-            units.append(desc)
+            if description:
+                units.append(description)
+            return units
 
-        # Collect consecutive runs of numbers
-        def isNumber(s):
-            try:
-                converter = NumberService()
-                converter.parse(s)
-                return True
-            except:
-                return False
-
-        desc = ""
-        for i, w in enumerate(split):
-            if isNumber(w):
-                desc = w
-
-                for w2 in split[i+1:]:
-                    if isNumber(desc + " " + w2):
-                        desc += " " + w2
-                    else:
-                        break
-                break
-
-        n = converter.parse(desc)
+        n = NumberService().longestNumber(input)
+        units = extractUnits(input)
 
         # Convert to quantity object, attempt conversion
         quantity = pq.Quantity(float(n), units[0])

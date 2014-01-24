@@ -241,3 +241,29 @@ class NumberService(object):
             return True
         except:
             return False
+
+    def longestNumber(self, input):
+        """
+            Attempts to extract the longest valid numerical description from a string.
+            Not guaranteed to return a result even if some valid numerical description exists
+            (i.e., not particularly advanced).
+        """
+        split = input.split(' ')
+
+        # Assume just a single number
+        numStart = None
+        numEnd = None
+        for i, w in enumerate(split):
+            if self.isValid(w):
+                if numStart is None:
+                    numStart = i
+                numEnd = i
+            else:
+                # Check for ordinal, which would signify end
+                w = re.sub(r'(\w+)s(\b)', '\g<1>\g<2>', w)
+                if w in self.__ordinals__:
+                    if self.isValid(' '.join(split[numStart:i + 1])):
+                        numEnd = i
+                        break
+        description = ' '.join(split[numStart:numEnd + 1])
+        return self.parse(description)

@@ -3,12 +3,49 @@ from dates import DateService
 from numbers import NumberService
 from solver import MathService
 from units import ConversionService
+import quantities as pq
 import datetime
 from math import log, sin, sqrt, e, pi
 
 
 class TestConversion(unittest.TestCase):
-    pass
+
+    def compareConversion(self, input, target):
+        service = ConversionService()
+        result = service.convert(input)
+        self.assertEqual(result.magnitude, target.magnitude)
+        self.assertEqual(result.units, target.units)
+
+    def testSimple(self):
+        input = "55.12 kilograms to pounds"
+        target = pq.Quantity(55.12, "kg")
+        target.units = "pounds"
+        self.compareConversion(input, target)
+
+    def testPer(self):
+        input = "fifty one point two kilograms per meter to pounds per foot"
+        target = pq.Quantity(51.2, "kg / meter")
+        target.units = "pounds / ft"
+        self.compareConversion(input, target)
+
+    def testReadability(self):
+        input = "convert 0.000013 inches to centimeters"
+        target = pq.Quantity(0.000013, "inches")
+        target.units = "cm"
+
+        # Correctness of conversion
+        self.compareConversion(input, target)
+
+        # Correctness of representation
+        service = ConversionService()
+        self.assertEqual(service.parseUnits(input),
+                         "3.3 times ten to the negative 5 cm")
+
+    def testFloat(self):
+        input = "what is eleven and two thirds pounds converted to kilograms"
+        target = pq.Quantity(11 + 2.0 / 3, "pounds")
+        target.units = "kg"
+        self.compareConversion(input, target)
 
 
 class TestMath(unittest.TestCase):
@@ -38,8 +75,8 @@ class TestMath(unittest.TestCase):
         self.compareSolution(input, 3 / sqrt(25))
 
     def testComplex(self):
-        input = "eleven and a half divided by two hundred point two three to the sixth power"
-        self.compareSolution(input, 15.25 / (200.23 ** 6))
+        input = "one and a quarter divided by two point two to the sixth power"
+        self.compareSolution(input, 1.25 / (2.2 ** 6))
 
     def testConstants(self):
         input = "E plus sqrt one plus tangent two times pi"
