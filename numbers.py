@@ -2,7 +2,8 @@ import re
 
 
 class NumberService(object):
-    __ones__ = {
+    __small__ = {
+        'zero': 0,
         'one': 1,
         'two': 2,
         'three': 3,
@@ -12,6 +13,7 @@ class NumberService(object):
         'seven': 7,
         'eight': 8,
         'nine': 9,
+        'ten': 10,
         'eleven': 11,
         'twelve': 12,
         'thirteen': 13,
@@ -20,18 +22,29 @@ class NumberService(object):
         'sixteen': 16,
         'seventeen': 17,
         'eighteen': 18,
-        'nineteen': 19}
-
-    __tens__ = {
-        'ten':     10,
-        'twenty':  20,
-        'thirty':  30,
-        'forty':   40,
-        'fifty':   50,
-        'sixty':   60,
+        'nineteen': 19,
+        'twenty': 20,
+        'thirty': 30,
+        'forty': 40,
+        'fifty': 50,
+        'sixty': 60,
         'seventy': 70,
-        'eighty':  80,
-        'ninety':  90
+        'eighty': 80,
+        'ninety': 90
+    }
+
+    __magnitude__ = {
+        'thousand':     1000,
+        'million':      1000000,
+        'billion':      1000000000,
+        'trillion':     1000000000000,
+        'quadrillion':  1000000000000000,
+        'quintillion':  1000000000000000000,
+        'sextillion':   1000000000000000000000,
+        'septillion':   1000000000000000000000000,
+        'octillion':    1000000000000000000000000000,
+        'nonillion':    1000000000000000000000000000000,
+        'decillion':    1000000000000000000000000000000000,
     }
 
     __ordinals__ = {
@@ -70,24 +83,10 @@ class NumberService(object):
         'halve': 'two'
     }
 
-    __groups__ = {
-        'thousand': 1000,
-        'million': 1000000,
-        'billion': 1000000000,
-        'trillion': 1000000000000}
+    class NumberException(Exception):
 
-    # Captures group names
-    __groups_re__ = re.compile(
-        r'\s?([\w\s]+?)(?:\s((?:%s))|$)' %
-        ('|'.join(__groups__)))
-
-    # Captures 'n hundred' expressions in groups
-    __hundreds_re__ = re.compile(r'([\w\s]+)\shundred(?:\s(.*)|$)')
-
-    # Captures 'ten ones' pattern in groups
-    __tens_and_ones_re__ = re.compile(
-        r'((?:%s))(?:\s(.*)|$)' %
-        ('|'.join(__tens__.keys())))
+        def __init__(self, msg):
+            Exception.__init__(self, msg)
 
     def parse(self, words):
         """
@@ -210,56 +209,31 @@ class NumberService(object):
         # 'a' -> 'one'
         words = re.sub(r'(\b)a(\b)', '\g<1>one\g<2>', words)
 
-        # Build number from 0
-        num = 0
+        def textToNumber(s):
+            """
+                Converts raw number string to an integer.
+                Based on text2num.py by Greg Hewill.
+            """
+            a = re.split(r"[\s-]+", s)
+            n = 0
+            g = 0
+            for w in a:
+                x = NumberService.__small__.get(w, None)
+                if x is not None:
+                    g += x
+                elif w == "hundred":
+                    g *= 100
+                else:
+                    x = NumberService.__magnitude__.get(w, None)
+                    if x is not None:
+                        n += g * x
+                        g = 0
+                    else:
+                        raise NumberService.NumberException(
+                            "Unknown number: " + w)
+            return n + g
 
-        # Loop through number groups
-        for group in NumberService.__groups_re__.findall(words):
-            # Determine position of group, assuming ones group
-            group_multiplier = 1
-            if group[1] in NumberService.__groups__:
-                group_multiplier = NumberService.__groups__[group[1]]
-
-            group_num = 0
-
-            # Extract hunderds
-            hundreds_match = NumberService.__hundreds_re__.match(group[0])
-
-            # Extracting remaining values (tens, ones place)
-            tens_and_ones = None
-
-            # Check for 'n hundred' pattern
-            if hundreds_match and hundreds_match.group(1):
-                group_num = group_num + \
-                    (NumberService.__ones__[hundreds_match.group(1)] * 100)
-                tens_and_ones = hundreds_match.group(2)
-            else:
-            # Entire string contains only tens- and ones-place values
-                tens_and_ones = group[0]
-
-            if tens_and_ones is None:
-                num = num + (group_num * group_multiplier)
-                continue
-
-            # Look for tens and ones ('tn1')
-            tn1_match = NumberService.__tens_and_ones_re__.match(
-                tens_and_ones)
-
-            if tn1_match is not None:
-                # Add tens
-                group_num = group_num + \
-                    NumberService.__tens__[tn1_match.group(1)]
-                # Add ones
-                if tn1_match.group(2) is not None:
-                    group_num = group_num + \
-                        NumberService.__ones__[tn1_match.group(2)]
-            else:
-            # Assume 'tens and ones' contained only ones-place values
-                group_num = group_num + NumberService.__ones__[tens_and_ones]
-            # Increment total by current group number times its multiplier
-            num = num + (group_num * group_multiplier)
-
-        return num
+        return textToNumber(words)
 
     def isValid(self, input):
         try:

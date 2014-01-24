@@ -38,8 +38,7 @@ class TestMath(unittest.TestCase):
         self.compareSolution(input, 3 / sqrt(25))
 
     def testComplex(self):
-        input = "eleven and a half divided by two hundred point two \
-            three to the sixth power"
+        input = "eleven and a half divided by two hundred point two three to the sixth power"
         self.compareSolution(input, 15.25 / (200.23 ** 6))
 
     def testConstants(self):
