@@ -130,6 +130,18 @@ class TestNumbers(unittest.TestCase):
         input = "fifty one million and eleven"
         self.compareNumbers(input, 51000011)
 
+    #
+    # Readability tests
+    #
+
+    def testFloatCutoff(self):
+        input = "five point one three seven seven seven seven seven"
+        self.assertEqual(NumberService.parseMagnitude(input), '5.14')
+
+    def testScientific(self):
+        input = 5e-05
+        self.assertEqual(NumberService.parseMagnitude(input), '5 times ten to the negative 5')
+
 
 class TestDate(unittest.TestCase):
 

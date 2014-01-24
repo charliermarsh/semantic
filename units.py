@@ -11,43 +11,6 @@ class ConversionService(object):
         input = re.sub(r'\sper\s', r' / ', input)
         return input
 
-    @staticmethod
-    def parseMagnitude(m):
-        """
-            Parses a number m into a human-ready string representation.
-            For example, crops off floats if they're too accurate.
-        """
-
-        def toDecimalPrecision(n, k):
-            return float("%.*f" % (k, round(n, k)))
-
-        # Cast to two digits of precision
-        digits = 2
-        magnitude = toDecimalPrecision(m, digits)
-
-        # If value is really small, keep going
-        while not magnitude:
-            digits += 1
-            magnitude = toDecimalPrecision(m, digits)
-
-        # If item is less than one, go one beyond 'necessary' number of digits
-        if m < 1.0:
-            magnitude = toDecimalPrecision(m, digits + 1)
-
-        # Ignore decimal accuracy if irrelevant
-        if int(magnitude) == magnitude:
-            magnitude = int(magnitude)
-
-        # Adjust for scientific notation
-        magString = str(magnitude)
-        magString = re.sub(r'(\d)e-(\d+)',
-                           '\g<1> times ten to the negative \g<2>', magString)
-        magString = re.sub(r'(\d)e\+(\d+)',
-                           '\g<1> times ten to the \g<2>', magString)
-        magString = re.sub(r'-(\d+)', 'negative \g<1>', magString)
-        magString = re.sub(r'\b0(\d+)', '\g<1>', magString)
-        return magString
-
     def parseUnits(self, input):
         """
             Carries out some conversion (represented as a string) and
@@ -55,7 +18,7 @@ class ConversionService(object):
         """
         quantity = self.convert(input)
         units = ' '.join(str(quantity.units).split(' ')[1:])
-        return ConversionService.parseMagnitude(quantity.item()) + " " + units
+        return NumberService.parseMagnitude(quantity.item()) + " " + units
 
     def convert(self, input):
         """
