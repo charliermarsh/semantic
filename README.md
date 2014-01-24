@@ -1,4 +1,4 @@
-# PyContext
+# intent
 
 A Python library for extracting semantic information from text, such as dates and numbers.
 
