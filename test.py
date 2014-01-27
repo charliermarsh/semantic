@@ -140,7 +140,8 @@ class TestNumbers(unittest.TestCase):
 
     def testScientific(self):
         input = 5e-05
-        self.assertEqual(NumberService.parseMagnitude(input), '5 times ten to the negative 5')
+        self.assertEqual(NumberService.parseMagnitude(input),
+                         '5 times ten to the negative 5')
 
 
 class TestDate(unittest.TestCase):
@@ -190,6 +191,15 @@ class TestDate(unittest.TestCase):
                 days=7 + num_days_away)
         self.compareDate(input, target)
 
+    def testAmbiguousNext(self):
+        input = "The next event will take place on Friday"
+        friday = 4
+        num_days_away = (friday - datetime.datetime.today().weekday()) % 7
+        target = datetime.datetime.today() + \
+            datetime.timedelta(
+                days=num_days_away)
+        self.compareDate(input, target)
+
     def testTomorrow(self):
         input = "Tomorrow morning, go to the grocery store"
         target = datetime.datetime.today() + datetime.timedelta(days=1)
@@ -203,6 +213,15 @@ class TestDate(unittest.TestCase):
     def testThis(self):
         input = "This morning, I went to the gym"
         target = datetime.datetime.today()
+        self.compareDate(input, target)
+
+    def testIllegalDate(self):
+        input = "I have a meeting on February 29 at 12:15pm"
+        self.assertRaises(ValueError, lambda: DateService().parseDate(input))
+
+    def testMultiple(self):
+        input = "Tomorrow, I'll schedule the meeting for June 9 at 1:30pm"
+        target = datetime.datetime.today() + datetime.timedelta(days=1)
         self.compareDate(input, target)
 
     #

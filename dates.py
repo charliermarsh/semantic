@@ -20,21 +20,21 @@ class DateService(object):
             self.now = datetime.datetime.now(tz=self.tz)
 
     __months__ = ['january', 'february', 'march', 'april', 'may', 'june',
-              'july', 'august', 'september', 'october', 'november', 'december']
+                  'july', 'august', 'september', 'october', 'november', 'december']
 
     __shortMonths__ = ['jan', 'feb', 'mar', 'apr', 'may',
-                    'jun', 'jul', 'aug', 'sept', 'oct', 'nov', 'dec']
+                       'jun', 'jul', 'aug', 'sept', 'oct', 'nov', 'dec']
 
     __daysOfWeek__ = ['monday', 'tuesday', 'wednesday',
-                    'thursday', 'friday', 'saturday', 'sunday']
+                      'thursday', 'friday', 'saturday', 'sunday']
 
     __relativeDates__ = ['tomorrow', 'tonight', 'next']
 
     __todayMatches__ = ['tonight', 'today', 'this morning',
-                     'this evening', 'this afternoon']
+                        'this evening', 'this afternoon']
 
     __tomorrowMatches__ = ['tomorrow', 'next morning',
-                        'next evening', 'next afternoon']
+                           'next evening', 'next afternoon']
 
     __dateDescriptors__ = {
         'one': 1,
@@ -164,7 +164,7 @@ class DateService(object):
 
         # Convert extracted terms to datetime object
         if not dayMatch:
-            d = None
+            return None
         elif today:
             d = self.now
         elif tomorrow:
@@ -183,7 +183,7 @@ class DateService(object):
                 self.now.year, month, day,
                 self.now.hour, self.now.minute)
 
-        if dayMatch and a_week_from:
+        if a_week_from:
             d += datetime.timedelta(days=7)
 
         return d
