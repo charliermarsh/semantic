@@ -13,8 +13,8 @@ class ConversionService(object):
 
     def parseUnits(self, input):
         """
-            Carries out some conversion (represented as a string) and
-            returns the result as a human-ready string.
+        Carries out some conversion (represented as a string) and
+        returns the result as a human-ready string.
         """
         quantity = self.convert(input)
         units = ' '.join(str(quantity.units).split(' ')[1:])
@@ -22,8 +22,8 @@ class ConversionService(object):
 
     def convert(self, input):
         """
-            Converts a string representation of some quantity of units
-            and converts it to a quantities object.
+        Converts a string representation of some quantity of units
+        and converts it to a quantities object.
         """
         input = ConversionService.preprocess(input)
 

@@ -61,7 +61,7 @@ class MathService(object):
         return op(a)
 
     @staticmethod
-    def preprocess(input):
+    def __preprocess(input):
         """Revise wording to match canonical and expected forms."""
         input = re.sub(r'(\b)a(\b)', r'\g<1>one\g<2>', input)
         input = re.sub(r'to the (.*) power', r'to \g<1>', input)
@@ -120,9 +120,7 @@ class MathService(object):
 
     @staticmethod
     def __calculate(numbers, symbols):
-        """
-            Calculates a final value given a set of numbers and symbols.
-        """
+        """Calculates a final value given a set of numbers and symbols."""
         if len(numbers) is 1:
             return numbers[0]
 
@@ -142,7 +140,16 @@ class MathService(object):
                     return MathService.__calculate(new_numbers, new_symbols)
 
     def parseEquation(self, input):
-        input = MathService.preprocess(input)
+        """
+        Solves the equation specified, in words, by input.
+
+        Arguments:
+        input -- equation, specified in words.
+
+        Returns:
+        floating-point solution to equation
+        """
+        input = MathService.__preprocess(input)
         split = input.split(' ')
 
         # Recursive call on unary operators

@@ -129,9 +129,7 @@ class DateService(object):
         return input.replace('-', ' ').lower()
 
     def parseDay(self, input):
-        """
-            Extracts day-related information from an input string.
-        """
+        """Extracts day-related information from an input string."""
         input = self.preprocess(input)
 
         def extractDayOfWeek(dayMatch):
@@ -190,9 +188,9 @@ class DateService(object):
 
     def parseTime(self, input):
         """
-            Extracts time information from an input string. Assumes that
-            the time is referencing 'today' or that any relative time
-            is in terms of minutes or hours from now.
+        Extracts time information from an input string. Assumes that the
+        time is referencing 'today' or that any relative time is in terms
+        of minutes or hours from now.
         """
         input = self.preprocess(input)
 
@@ -259,15 +257,15 @@ class DateService(object):
 
     def parseDate(self, input):
         """
-            Extract semantic date information from an input string.
+        Extract semantic date information from an input string.
 
-            Arguments:
-            input -- string to be parsed.
-            tz -- the current timezone (a pytz object)
-            now -- the time from which relative dates should be calculated. Assumed to be datetime.datetime.now(tz=tz) if not provided.
+        Arguments:
+        input -- string to be parsed.
+        tz -- the current timezone (a pytz object)
+        now -- the time from which relative dates should be calculated. Assumed to be datetime.datetime.now(tz=tz) if not provided.
 
-            Returns:
-            A datetime object containing the extracted date from the input snippet, or None if not found.
+        Returns:
+        A datetime object containing the extracted date from the input snippet, or None if not found.
         """
         day = self.parseDay(input)
         time = self.parseTime(input)
@@ -317,12 +315,12 @@ class DateService(object):
 
     def convertDate(self, date, prefix="", weekday=False):
         """
-            Parse a datetime object to a nice human-readable string.
+        Parse a datetime object to a nice human-readable string.
 
-            Arguments:
-            day -- datetime object to be parsed.
-            prefix -- a prefix for exact dates (e.g., prefix of 'on' would give 'on August 8' vs. 'tomorrow')
-            weekday -- if True, includes the weekday in the output string.
+        Arguments:
+        day -- datetime object to be parsed.
+        prefix -- a prefix for exact dates (e.g., prefix of 'on' would give 'on August 8' vs. 'tomorrow')
+        weekday -- if True, includes the weekday in the output string.
         """
         dayString = self.convertDay(
             date, prefix=prefix, weekday=weekday)
@@ -332,15 +330,15 @@ class DateService(object):
 
 def extractDate(input, tz=None, now=None):
     """
-        Extract semantic date information from an input string.
+    Extract semantic date information from an input string.
 
-        Arguments:
-        input -- string to be parsed.
-        tz -- the current timezone (a pytz object)
-        now -- the time from which relative dates should be calculated. Assumed to be datetime.datetime.now(tz=tz) if not provided.
+    Arguments:
+    input -- string to be parsed.
+    tz -- the current timezone (a pytz object)
+    now -- the time from which relative dates should be calculated. Assumed to be datetime.datetime.now(tz=tz) if not provided.
 
-        Returns:
-        A datetime object containing the extracted date from the input snippet, or None if not found.
+    Returns:
+    A datetime object containing the extracted date from the input snippet, or None if not found.
     """
     service = DateService(tz=tz, now=now)
     return service.parseDate(input)

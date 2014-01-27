@@ -90,14 +90,14 @@ class NumberService(object):
 
     def parse(self, words):
         """
-            A general method for parsing word-representations of numbers.
-            Supports floats and integers.
+        A general method for parsing word-representations of numbers.
+        Supports floats and integers.
 
-            Arguments:
-            words -- word representation of a numerical value.
+        Arguments:
+        words -- word representation of a numerical value.
 
-            Returns:
-            floating-point representation of the words
+        Returns:
+        floating-point representation of the words
         """
         def exact(words):
             """If already represented as float or int, convert."""
@@ -130,10 +130,10 @@ class NumberService(object):
             a quarter").
 
             Arguments:
-            words -- description of the floating-point number
+            words -- description of the floating-point number.
 
             Returns:
-            double representation of the words
+            double representation of the words.
         """
         def pointFloat(words):
             m = re.search(r'(.*) point (.*)', words)
@@ -194,13 +194,13 @@ class NumberService(object):
 
     def parseInt(self, words):
         """
-            Parses words to the integer they describe.
+        Parses words to the integer they describe.
 
-            Arguments:
-            words -- description of the integer
+        Arguments:
+        words -- description of the integer.
 
-            Returns:
-            integer representation of the words
+        Returns:
+        integer representation of the words.
         """
         # Remove 'and', case-sensitivity
         words = words.replace(" and ", " ").lower()
@@ -209,8 +209,8 @@ class NumberService(object):
 
         def textToNumber(s):
             """
-                Converts raw number string to an integer.
-                Based on text2num.py by Greg Hewill.
+            Converts raw number string to an integer.
+            Based on text2num.py by Greg Hewill.
             """
             a = re.split(r"[\s-]+", s)
             n = 0
@@ -243,8 +243,14 @@ class NumberService(object):
     @staticmethod
     def parseMagnitude(m):
         """
-            Parses a number m into a human-ready string representation.
-            For example, crops off floats if they're too accurate.
+        Parses a number m into a human-ready string representation.
+        For example, crops off floats if they're too accurate.
+
+        Arguments:
+        m -- floating-point number to be cleaned.
+
+        Returns:
+        human-ready string description of the number.
         """
         m = NumberService().parse(m)
 
@@ -280,9 +286,9 @@ class NumberService(object):
 
     def longestNumber(self, input):
         """
-            Attempts to extract the longest valid numerical description from a string.
-            Not guaranteed to return a result even if some valid numerical description exists
-            (i.e., not particularly advanced).
+        Attempts to extract the longest valid numerical description from a string.
+        Not guaranteed to return a result even if some valid numerical description exists
+        (i.e., not particularly advanced).
         """
         split = input.split(' ')
 
