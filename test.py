@@ -182,6 +182,16 @@ class TestDate(unittest.TestCase):
         target = datetime.datetime(2014, 1, 26) + datetime.timedelta(days=7)
         self.compareDate(input, target)
 
+    def testMultipleWeeksFrom(self):
+        input = "Do x y and z three weeks from January 26"
+        target = datetime.datetime(2014, 1, 26) + datetime.timedelta(days=21)
+        self.compareDate(input, target)
+
+    def testMultiWordDaysFrom(self):
+        input = "Do x y and z twenty six days from January 26"
+        target = datetime.datetime(2014, 1, 26) + datetime.timedelta(days=26)
+        self.compareDate(input, target)
+
     def testNextFriday(self):
         input = "Next Friday, go to the grocery store"
         friday = 4

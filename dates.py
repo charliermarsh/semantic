@@ -1,5 +1,6 @@
 import re
 import datetime
+from numbers import NumberService
 
 
 def safe(exp):
@@ -103,7 +104,7 @@ class DateService(object):
 
     dayRegex = re.compile(
         r"""(?ix)
-        (week\ from\ )?
+        ((week|day)s?\ from\ )?
         (
             tomorrow
             |tonight
@@ -133,29 +134,60 @@ class DateService(object):
         input = self.preprocess(input)
 
         def extractDayOfWeek(dayMatch):
-            return self.__daysOfWeek__.index(dayMatch.group(4))
+            return self.__daysOfWeek__.index(dayMatch.group(5))
 
         def extractMonth(dayMatch):
-            if dayMatch.group(5) in self.__months__:
-                return self.__months__.index(dayMatch.group(5)) + 1
-            elif dayMatch.group(5) in self.__shortMonths__:
-                return self.__shortMonths__.index(dayMatch.group(5)) + 1
+            if dayMatch.group(6) in self.__months__:
+                return self.__months__.index(dayMatch.group(6)) + 1
+            elif dayMatch.group(6) in self.__shortMonths__:
+                return self.__shortMonths__.index(dayMatch.group(6)) + 1
 
         def extractDay(dayMatch):
-            if dayMatch.group(6) + dayMatch.group(7) in self.__dateDescriptors__:
-                return self.__dateDescriptors__[dayMatch.group(6) + dayMatch.group(7)]
-            elif dayMatch.group(6) in self.__dateDescriptors__:
-                return self.__dateDescriptors__[dayMatch.group(6)]
-            elif int(dayMatch.group(6)) in self.__dateDescriptors__.values():
-                return int(dayMatch.group(6))
+            if dayMatch.group(7) + dayMatch.group(8) in self.__dateDescriptors__:
+                return self.__dateDescriptors__[dayMatch.group(7) + dayMatch.group(8)]
+            elif dayMatch.group(7) in self.__dateDescriptors__:
+                return self.__dateDescriptors__[dayMatch.group(7)]
+            elif int(dayMatch.group(7)) in self.__dateDescriptors__.values():
+                return int(dayMatch.group(7))
+
+        def extractDaysFrom(dayMatch):
+            if not dayMatch.group(1):
+                return 0
+
+            def numericalPrefix(dayMatch):
+                # Grab 'three' of 'three weeks from'
+                prefix = input.split(dayMatch.group(1))[0].strip().split(' ')
+                prefix.reverse()
+                service = NumberService()
+                num = prefix[0]
+                if service.isValid(num):
+                    for n in prefix[1:]:
+                        if n == 'and':
+                            continue
+
+                        inc = n + " " + num
+                        if service.isValid(inc):
+                            num = inc
+                        else:
+                            break
+                    return service.parse(num)
+                else:
+                    return 1
+
+            factor = numericalPrefix(dayMatch)
+
+            if dayMatch.group(2) == 'week':
+                return factor * 7
+            elif dayMatch.group(2) == 'day':
+                return factor * 1
 
         dayMatch = self.dayRegex.search(input)
 
         # Extract key terms
-        a_week_from = safe(lambda: bool(dayMatch.group(1)))
-        today = safe(lambda: dayMatch.group(2) in self.__todayMatches__)
-        tomorrow = safe(lambda: dayMatch.group(2) in self.__tomorrowMatches__)
-        next_week = safe(lambda: dayMatch.group(3) == 'next')
+        days_from = safe(lambda: extractDaysFrom(dayMatch))
+        today = safe(lambda: dayMatch.group(3) in self.__todayMatches__)
+        tomorrow = safe(lambda: dayMatch.group(3) in self.__tomorrowMatches__)
+        next_week = safe(lambda: dayMatch.group(4) == 'next')
         day_of_week = safe(lambda: extractDayOfWeek(dayMatch))
         month = safe(lambda: extractMonth(dayMatch))
         day = safe(lambda: extractDay(dayMatch))
@@ -181,8 +213,8 @@ class DateService(object):
                 self.now.year, month, day,
                 self.now.hour, self.now.minute)
 
-        if a_week_from:
-            d += datetime.timedelta(days=7)
+        if days_from:
+            d += datetime.timedelta(days=days_from)
 
         return d
 
