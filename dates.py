@@ -158,21 +158,20 @@ class DateService(object):
                 # Grab 'three' of 'three weeks from'
                 prefix = input.split(dayMatch.group(1))[0].strip().split(' ')
                 prefix.reverse()
+                prefix = filter(lambda s: s != 'and', prefix)
+
+                # Generate best guess number
                 service = NumberService()
                 num = prefix[0]
                 if service.isValid(num):
                     for n in prefix[1:]:
-                        if n == 'and':
-                            continue
-
                         inc = n + " " + num
                         if service.isValid(inc):
                             num = inc
                         else:
                             break
                     return service.parse(num)
-                else:
-                    return 1
+                return 1
 
             factor = numericalPrefix(dayMatch)
 

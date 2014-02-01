@@ -1,11 +1,11 @@
+from math import log, sin, sqrt, e, pi
+import datetime
 import unittest
+import quantities as pq
 from dates import DateService
 from numbers import NumberService
 from solver import MathService
 from units import ConversionService
-import quantities as pq
-import datetime
-from math import log, sin, sqrt, e, pi
 
 
 class TestConversion(unittest.TestCase):
@@ -190,6 +190,11 @@ class TestDate(unittest.TestCase):
     def testMultiWordDaysFrom(self):
         input = "Do x y and z twenty six days from January 26"
         target = datetime.datetime(2014, 1, 26) + datetime.timedelta(days=26)
+        self.compareDate(input, target)
+
+    def testMultiWordAndDaysFrom(self):
+        input = "Do x y and z one hundred and twelve days from January 26"
+        target = datetime.datetime(2014, 1, 26) + datetime.timedelta(days=112)
         self.compareDate(input, target)
 
     def testNextFriday(self):
