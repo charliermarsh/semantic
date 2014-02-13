@@ -2,6 +2,8 @@
 
 A Python library for extracting semantic information from text, such as dates and numbers.
 
+<img src="https://travis-ci.org/crm416/intent.png" title="Build Status Images">
+
 # Features
 
 Four main modules, each of which corresponds to a different semantic extractor.
