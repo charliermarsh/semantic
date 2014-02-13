@@ -26,11 +26,14 @@ Four main modules, each of which corresponds to a different semantic extractor.
 - Converting between units expressed as words.
 	- E.g.: From "Seven and a half kilograms to pounds" to 16.5347.
 - Converting units to human-readable strings.
-	- E.g., 
 
 
 # Running
 
 The test suite (_test.py_) contains tons of examples and use-cases for each of the four modules.
 
-The Dates, Numbers, and Math modules can run in isolation (i.e., have no dependencies), while the Units module requires [quantities](https://pypi.python.org/pypi/quantities) and [Numpy](http://www.numpy.org).
+The Dates, Numbers, and Math modules can run in isolation (i.e., without any dependencies), while the Units module requires [quantities](https://pypi.python.org/pypi/quantities) and [Numpy](http://www.numpy.org).
+
+# License
+
+MIT © [Charles Marsh](https://github.com/crm416)
