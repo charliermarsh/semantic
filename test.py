@@ -2,10 +2,10 @@ from math import log, sin, sqrt, e, pi
 import datetime
 import unittest
 import quantities as pq
-from dates import DateService
-from numbers import NumberService
-from solver import MathService
-from units import ConversionService
+from intent.dates import DateService
+from intent.numbers import NumberService
+from intent.solver import MathService
+from intent.units import ConversionService
 
 
 class TestConversion(unittest.TestCase):
