@@ -20,14 +20,10 @@ class ConversionService(object):
         units = ' '.join(str(quantity.units).split(' ')[1:])
         return NumberService.parseMagnitude(quantity.item()) + " " + units
 
-    def convert(self, input):
-        """
-        Converts a string representation of some quantity of units
-        and converts it to a quantities object.
-        """
+    def extractUnits(self, input):
+        """Collects all the valid units from an input string."""
         input = ConversionService.preprocess(input)
 
-        # Collect consecutive runs of units
         def isValidUnit(w):
             if w == 'point':
                 return False
@@ -38,25 +34,31 @@ class ConversionService(object):
             except:
                 return w == '/'
 
-        def extractUnits(input):
-            units = []
-            description = ""
-            for w in input.split(' '):
-                if isValidUnit(w):
-                    if description:
-                        description += " "
-                    description += w
-                else:
-                    if description:
-                        units.append(description)
-                    description = ""
+        units = []
+        description = ""
+        for w in input.split(' '):
+            if isValidUnit(w):
+                if description:
+                    description += " "
+                description += w
+            else:
+                if description:
+                    units.append(description)
+                description = ""
 
-            if description:
-                units.append(description)
-            return units
+        if description:
+            units.append(description)
+        return units
+
+    def convert(self, input):
+        """
+        Converts a string representation of some quantity of units
+        and converts it to a quantities object.
+        """
+        input = ConversionService.preprocess(input)
 
         n = NumberService().longestNumber(input)
-        units = extractUnits(input)
+        units = self.extractUnits(input)
 
         # Convert to quantity object, attempt conversion
         quantity = pq.Quantity(float(n), units[0])

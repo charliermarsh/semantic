@@ -47,6 +47,12 @@ class TestConversion(unittest.TestCase):
         target.units = "kg"
         self.compareConversion(input, target)
 
+    def testExtraction(self):
+        input = "I want three pounds of eggs and two inches per foot of land"
+        service = ConversionService()
+        units = service.extractUnits(input)
+        self.assertEqual(units, ['pounds', 'inches / foot'])
+
 
 class TestMath(unittest.TestCase):
 
