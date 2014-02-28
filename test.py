@@ -48,10 +48,36 @@ class TestConversion(unittest.TestCase):
         self.compareConversion(input, target)
 
     def testExtraction(self):
-        input = "I want three pounds of eggs and two inches per foot of land"
+        input = "I want three pounds of eggs and two inches per squared foot"
         service = ConversionService()
         units = service.extractUnits(input)
-        self.assertEqual(units, ['pounds', 'inches / foot'])
+        self.assertEqual(units, ['pounds', 'inches / foot^2'])
+
+    def testExponentiation(self):
+        service = ConversionService()
+        input = "I want two squared meters"
+        units = service.extractUnits(input)
+        self.assertEqual(units, ['meters^2'])
+
+        input = "I want two square meters"
+        units = service.extractUnits(input)
+        self.assertEqual(units, ['meters^2'])
+
+        input = "I want two cubic meters"
+        units = service.extractUnits(input)
+        self.assertEqual(units, ['meters^3'])
+
+        input = "I want two meters cubed"
+        units = service.extractUnits(input)
+        self.assertEqual(units, ['meters^3'])
+
+        input = "I want two meters to the fifth power"
+        units = service.extractUnits(input)
+        self.assertEqual(units, ['meters^5'])
+
+        input = "I want two meters to the fifth"
+        units = service.extractUnits(input)
+        self.assertEqual(units, ['meters^5'])
 
 
 class TestMath(unittest.TestCase):
