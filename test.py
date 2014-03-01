@@ -292,6 +292,12 @@ class TestDate(unittest.TestCase):
             tomorrow.year, tomorrow.month, tomorrow.day, 12, 51)
         self.compareTime(input, target)
 
+    def testInExactTime(self):
+        input = "I want to leave in two hours and twenty minutes"
+        target = datetime.datetime.today() + \
+            datetime.timedelta(hours=2, minutes=20)
+        self.compareTime(input, target)
+
 if __name__ == "__main__":
     for runner in (TestConversion, TestMath, TestNumbers, TestDate):
         suite = unittest.TestLoader().loadTestsFromTestCase(runner)
