@@ -21,7 +21,8 @@ class DateService(object):
             self.now = datetime.datetime.now(tz=self.tz)
 
     __months__ = ['january', 'february', 'march', 'april', 'may', 'june',
-                  'july', 'august', 'september', 'october', 'november', 'december']
+                  'july', 'august', 'september', 'october', 'november',
+                  'december']
 
     __shortMonths__ = ['jan', 'feb', 'mar', 'apr', 'may',
                        'jun', 'jul', 'aug', 'sept', 'oct', 'nov', 'dec']
@@ -143,8 +144,9 @@ class DateService(object):
                 return self.__shortMonths__.index(dayMatch.group(6)) + 1
 
         def extractDay(dayMatch):
-            if dayMatch.group(7) + dayMatch.group(8) in self.__dateDescriptors__:
-                return self.__dateDescriptors__[dayMatch.group(7) + dayMatch.group(8)]
+            combined = dayMatch.group(7) + dayMatch.group(8)
+            if combined in self.__dateDescriptors__:
+                return self.__dateDescriptors__[combined]
             elif dayMatch.group(7) in self.__dateDescriptors__:
                 return self.__dateDescriptors__[dayMatch.group(7)]
             elif int(dayMatch.group(7)) in self.__dateDescriptors__.values():
@@ -245,7 +247,7 @@ class DateService(object):
             h, m = 0, 0
 
             # Extract hours difference
-            converter = WordsToNumbers()
+            converter = NumberService()
             try:
                 diff = converter.parse(time.group(4))
             except:
@@ -258,7 +260,7 @@ class DateService(object):
 
             # Extract minutes difference
             if time.group(6):
-                converter = WordsToNumbers()
+                converter = NumberService()
                 try:
                     diff = converter.parse(time.group(7))
                 except:
@@ -284,7 +286,9 @@ class DateService(object):
         if relative:
             return self.now + datetime.timedelta(hours=h, minutes=m)
         else:
-            return datetime.datetime(self.now.year, self.now.month, self.now.day, h, m)
+            return datetime.datetime(
+                self.now.year, self.now.month, self.now.day, h, m
+            )
 
     def parseDate(self, input):
         """
@@ -293,10 +297,12 @@ class DateService(object):
         Arguments:
         input -- string to be parsed.
         tz -- the current timezone (a pytz object)
-        now -- the time from which relative dates should be calculated. Assumed to be datetime.datetime.now(tz=tz) if not provided.
+        now -- the time from which relative dates should be calculated.
+               Assumed to be datetime.datetime.now(tz=tz) if not provided.
 
         Returns:
-        A datetime object containing the extracted date from the input snippet, or None if not found.
+        A datetime object containing the extracted date from the input snippet,
+        or None if not found.
         """
         day = self.parseDay(input)
         time = self.parseTime(input)
@@ -309,14 +315,22 @@ class DateService(object):
         if not time:
             return day
 
-        return datetime.datetime(day.year, day.month, day.day, time.hour, time.minute)
+        return datetime.datetime(
+            day.year, day.month, day.day, time.hour, time.minute
+        )
 
     def convertDay(self, day, prefix="", weekday=False):
-        if day.day == self.now.day and day.month == self.now.month and day.year == self.now.year:
-            return "today"
+        def sameDay(d1, d2):
+            d = d1.day == d2.day
+            m = d1.month == d2.month
+            y = d1.year == d2.yaer
+            return d and m and y
 
         tom = self.now + datetime.timedelta(days=1)
-        if day.day == tom.day and day.month == tom.month and day.year == tom.year:
+
+        if sameDay(day, self.now):
+            return "today"
+        elif sameDay(day, tom):
             return "tomorrow"
 
         if weekday:
@@ -350,7 +364,7 @@ class DateService(object):
 
         Arguments:
         day -- datetime object to be parsed.
-        prefix -- a prefix for exact dates (e.g., prefix of 'on' would give 'on August 8' vs. 'tomorrow')
+        prefix -- prefix for exact dates (e.g., prefix='on' --> 'on August 8')
         weekday -- if True, includes the weekday in the output string.
         """
         dayString = self.convertDay(
@@ -366,10 +380,12 @@ def extractDate(input, tz=None, now=None):
     Arguments:
     input -- string to be parsed.
     tz -- the current timezone (a pytz object)
-    now -- the time from which relative dates should be calculated. Assumed to be datetime.datetime.now(tz=tz) if not provided.
+    now -- the time from which relative dates should be calculated.
+           Assumed to be datetime.datetime.now(tz=tz) if not provided.
 
     Returns:
-    A datetime object containing the extracted date from the input snippet, or None if not found.
+    A datetime object containing the extracted date from the input snippet,
+    or None if not found.
     """
     service = DateService(tz=tz, now=now)
     return service.parseDate(input)

@@ -104,8 +104,10 @@ class MathService(object):
                     if i > 0 and w in MathService.__unaryOperators__:
                         last_op = split[i - 1]
 
-                        if last_op and not (last_op in MathService.__binaryOperators__ or
-                                            last_op in MathService.__unaryOperators__):
+                        binary = last_op in MathService.__binaryOperators__
+                        unary = last_op in MathService.__unaryOperators__
+
+                        if last_op and not (binary or unary):
                             revision += " times"
                     if not revision:
                         revision = w

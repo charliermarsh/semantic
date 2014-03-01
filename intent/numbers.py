@@ -286,9 +286,9 @@ class NumberService(object):
 
     def longestNumber(self, input):
         """
-        Attempts to extract the longest valid numerical description from a string.
-        Not guaranteed to return a result even if some valid numerical description exists
-        (i.e., not particularly advanced).
+        Extracts the longest valid numerical description from a string.
+        Not guaranteed to return a result even if some valid numerical
+        description exists (i.e., method is not particularly advanced).
         """
         split = input.split(' ')
 
