@@ -27,8 +27,7 @@ Four main modules, each of which corresponds to a different semantic extractor.
 ## Units (_units.py_)
 - Converting between units expressed as words.
 	- E.g.: From "Seven and a half kilograms to pounds" to 16.5347.
-- Converting units to human-readable strings.
-
+    - E.g.: From "Seven and a half pounds per square foot to kilograms per meter squared" to 16.5347.
 
 # Running
 

@@ -25,6 +25,10 @@ class ConversionService(object):
             if m and self.isValidUnit(m.group(1)):
                 input = re.sub(r'\b(\w+) squared', r'\g<1>^2', input)
 
+            m = re.search(r'\bsq (\w+)', input)
+            if m and self.isValidUnit(m.group(1)):
+                input = re.sub(r'\bsq (\w+)', r'\g<1>^2', input)
+
             m = re.search(r'\b(\w+) cubed', input)
             if m and self.isValidUnit(m.group(1)):
                 input = re.sub(r'\b(\w+) cubed', r'\g<1>^3', input)
@@ -58,7 +62,8 @@ class ConversionService(object):
         return NumberService.parseMagnitude(quantity.item()) + " " + units
 
     def isValidUnit(self, w):
-        if w == 'point':
+        bad = set(['point', 'a'])
+        if w in bad:
             return False
 
         try:

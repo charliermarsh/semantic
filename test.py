@@ -63,6 +63,10 @@ class TestConversion(unittest.TestCase):
         units = service.extractUnits(input)
         self.assertEqual(units, ['meters^2'])
 
+        input = "I want two sq meters"
+        units = service.extractUnits(input)
+        self.assertEqual(units, ['meters^2'])
+
         input = "I want two cubic meters"
         units = service.extractUnits(input)
         self.assertEqual(units, ['meters^3'])
@@ -78,6 +82,12 @@ class TestConversion(unittest.TestCase):
         input = "I want two meters to the fifth"
         units = service.extractUnits(input)
         self.assertEqual(units, ['meters^5'])
+
+    def testComplex(self):
+        input = "Seven and a half pounds per square ft to kg per meter squared"
+        target = pq.Quantity(7.5, "lb/ft**2")
+        target.units = "kg/m**2"
+        self.compareConversion(input, target)
 
 
 class TestMath(unittest.TestCase):
