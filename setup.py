@@ -4,8 +4,8 @@ from pip.req import parse_requirements
 install_reqs = parse_requirements("requirements.txt")
 reqs = [str(ir.req) for ir in install_reqs]
 
-setup(name='Intent',
-      version='1.0',
+setup(name='intent',
+      version='1.0.1',
       description='Common Natural Language Processing Tasks for Python',
       author='Charles Marsh',
       author_email='crmarsh@princeton.edu',

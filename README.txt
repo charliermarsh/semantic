@@ -2,6 +2,9 @@
 Intent
 ===========
 
+.. image:: https://badge.fury.io/py/intent.png
+    :target: http://badge.fury.io/py/intent
+
 Intent is a Python library for extracting semantic information from text, including dates, numbers, mathematical equations, and unit conversions.
 
 For each of these four semantic types, Intent provides a service module. Typical usage often looks like this::
@@ -12,6 +15,15 @@ For each of these four semantic types, Intent provides a service module. Typical
     service = DateService()
     date = service.extractDate("On March 3 at 12:15pm...")
     ...
+
+The full documentation can be found `here <https://pythonhosted.org/intent/>`_, while the source code itself is also available on `GitHub <https://github.com/crm416/intent>`_.
+
+Installation
+============
+
+Installing Intent is simple::
+
+    $ pip install intent
 
 Features
 ========
