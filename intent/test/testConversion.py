@@ -8,7 +8,6 @@ class TestConversion(unittest.TestCase):
     def compareConversion(self, input, target):
         service = ConversionService()
         result = service.convert(input)
-        print result
         self.assertEqual(result.magnitude, target.magnitude)
         self.assertEqual(result.units, target.units)
 

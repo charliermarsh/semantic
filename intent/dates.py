@@ -3,15 +3,21 @@ import datetime
 from numbers import NumberService
 
 
-def safe(exp):
-    """For safe evaluation of regex groups"""
-    try:
-        return exp()
-    except:
-        return False
-
-
 class DateService(object):
+    """Initialize a DateService for extracting dates from text.
+
+    Args:
+        tz: An optional Pytz timezone. All datetime objects returned will
+            be relative to the supplied timezone, or timezone-less if none
+            is supplied.
+        now: The time to which all returned datetime objects should be
+            relative. For example, if the text is "In 5 hours", the
+            datetime returned will be now + datetime.timedelta(hours=5).
+            Uses datetime.datetime.now() if none is supplied.
+
+    Returns:
+        A DateService which uses tz and now for all of its computations.
+    """
 
     def __init__(self, tz=None, now=None):
         self.tz = tz
@@ -103,7 +109,7 @@ class DateService(object):
         'thirty first': 31
     }
 
-    dayRegex = re.compile(
+    _dayRegex = re.compile(
         r"""(?ix)
         ((week|day)s?\ from\ )?
         (
@@ -115,7 +121,7 @@ class DateService(object):
         )
         """)
 
-    timeRegex = re.compile(
+    _timeRegex = re.compile(
         r"""(?ix)
         .*?
         (
@@ -127,12 +133,13 @@ class DateService(object):
         )
         .*?""")
 
-    def preprocess(self, input):
+    def _preprocess(self, input):
         return input.replace('-', ' ').lower()
 
     def parseDay(self, input):
-        """Extracts day-related information from an input string."""
-        input = self.preprocess(input)
+        """Extracts day-related information from an input string.
+        Ignores any information related to the specific time-of-day."""
+        input = self._preprocess(input)
 
         def extractDayOfWeek(dayMatch):
             return self.__daysOfWeek__.index(dayMatch.group(5))
@@ -182,9 +189,16 @@ class DateService(object):
             elif dayMatch.group(2) == 'day':
                 return factor * 1
 
-        dayMatch = self.dayRegex.search(input)
+        dayMatch = self._dayRegex.search(input)
 
         # Extract key terms
+        def safe(exp):
+            """For safe evaluation of regex groups"""
+            try:
+                return exp()
+            except:
+                return False
+
         days_from = safe(lambda: extractDaysFrom(dayMatch))
         today = safe(lambda: dayMatch.group(3) in self.__todayMatches__)
         tomorrow = safe(lambda: dayMatch.group(3) in self.__tomorrowMatches__)
@@ -220,14 +234,13 @@ class DateService(object):
         return d
 
     def parseTime(self, input):
+        """Extracts time-related information from an input string.
+        Ignores any information related to the specific date, focusing
+        on the time-of-day.
         """
-        Extracts time information from an input string. Assumes that the
-        time is referencing 'today' or that any relative time is in terms
-        of minutes or hours from now.
-        """
-        input = self.preprocess(input)
+        input = self._preprocess(input)
 
-        time = self.timeRegex.match(input)
+        time = self._timeRegex.match(input)
         relative = False
 
         if not time:
@@ -291,17 +304,17 @@ class DateService(object):
             )
 
     def parseDate(self, input):
-        """
-        Extract semantic date information from an input string.
+        """Extract semantic date information from an input string.
+        In effect, runs both parseDay and parseTime on the input
+        string and merges the results to produce a comprehensive
+        datetime object.
 
-        Arguments:
-        input -- string to be parsed.
-        tz -- the current timezone (a pytz object)
-        now -- the time from which relative dates should be calculated. Assumed to be datetime.datetime.now(tz=tz) if not provided.
+        Args:
+            input (str): Input string to be parsed.
 
         Returns:
-        A datetime object containing the extracted date from the input snippet,
-        or None if not found.
+            A datetime object containing the extracted date from the input
+            snippet, or None if not found.
         """
         day = self.parseDay(input)
         time = self.parseTime(input)
@@ -319,6 +332,22 @@ class DateService(object):
         )
 
     def convertDay(self, day, prefix="", weekday=False):
+        """Convert a datetime object representing a day into a human-ready
+        string that can be read, spoken aloud, etc.
+
+        Args:
+            day (datetime.date): A datetime object to be converted into text.
+            prefix (str): An optional argument that prefixes the converted
+                string. For example, if prefix="in", you'd receive "in two
+                days", rather than "two days", while the method would still
+                return "tomorrow" (rather than "in tomorrow").
+            weekday (bool): An optional argument that returns "Monday, Oct. 1"
+                if True, rather than "Oct. 1".
+
+        Returns:
+            A string representation of the input day, ignoring any time-related
+            information.
+        """
         def sameDay(d1, d2):
             d = d1.day == d2.day
             m = d1.month == d2.month
@@ -344,6 +373,16 @@ class DateService(object):
         return prefix + " " + dayString
 
     def convertTime(self, time):
+        """Convert a datetime object representing a time into a human-ready
+        string that can be read, spoken aloud, etc.
+
+        Args:
+            time (datetime.date): A datetime object to be converted into text.
+
+        Returns:
+            A string representation of the input time, ignoring any day-related
+            information.
+        """
         # if ':00', ignore reporting minutes
         m_format = ""
         if time.minute:
@@ -358,13 +397,21 @@ class DateService(object):
         return timeString
 
     def convertDate(self, date, prefix="", weekday=False):
-        """
-        Parse a datetime object to a nice human-readable string.
+        """Convert a datetime object representing into a human-ready
+        string that can be read, spoken aloud, etc. In effect, runs
+        both convertDay and convertTime on the input, merging the results.
 
-        Arguments:
-        day -- datetime object to be parsed.
-        prefix -- prefix for exact dates (e.g., prefix='on' --> 'on August 8')
-        weekday -- if True, includes the weekday in the output string.
+        Args:
+            date (datetime.date): A datetime object to be converted into text.
+            prefix (str): An optional argument that prefixes the converted
+                string. For example, if prefix="in", you'd receive "in two
+                days", rather than "two days", while the method would still
+                return "tomorrow" (rather than "in tomorrow").
+            weekday (bool): An optional argument that returns "Monday, Oct. 1"
+                if True, rather than "Oct. 1".
+
+        Returns:
+            A string representation of the input day and time.
         """
         dayString = self.convertDay(
             date, prefix=prefix, weekday=weekday)
@@ -373,18 +420,22 @@ class DateService(object):
 
 
 def extractDate(input, tz=None, now=None):
-    """
-    Extract semantic date information from an input string.
+    """Extract semantic date information from an input string.
+    This is a convenience method which would only be used if
+    you'd rather not initialize a DateService object.
 
-    Arguments:
-    input -- string to be parsed.
-    tz -- the current timezone (a pytz object)
-    now -- the time from which relative dates should be calculated.
-           Assumed to be datetime.datetime.now(tz=tz) if not provided.
+    Args:
+        input (str): The input string to be parsed.
+        tz: An optional Pytz timezone. All datetime objects returned will
+            be relative to the supplied timezone, or timezone-less if none
+            is supplied.
+        now: The time to which all returned datetime objects should be
+            relative. For example, if the text is "In 5 hours", the
+            datetime returned will be now + datetime.timedelta(hours=5).
+            Uses datetime.datetime.now() if none is supplied.
 
     Returns:
-    A datetime object containing the extracted date from the input snippet,
-    or None if not found.
+        A datetime objected extracted from input, or None if not found.
     """
     service = DateService(tz=tz, now=now)
     return service.parseDate(input)

@@ -89,15 +89,14 @@ class NumberService(object):
             Exception.__init__(self, msg)
 
     def parse(self, words):
-        """
-        A general method for parsing word-representations of numbers.
+        """A general method for parsing word-representations of numbers.
         Supports floats and integers.
 
-        Arguments:
-        words -- word representation of a numerical value.
+        Args:
+            words (str): Description of an arbitrary number.
 
         Returns:
-        floating-point representation of the words
+            A double representation of the words.
         """
         def exact(words):
             """If already represented as float or int, convert."""
@@ -123,17 +122,17 @@ class NumberService(object):
         return self.parseFloat(parsed_ordinals)
 
     def parseFloat(self, words):
-        """
-            Convert a floating-point number described in words to a double.
-            Supports two kinds of descriptions: those with a 'point' (e.g.,
-            "one point two five") and those with a fraction (e.g., "one and
-            a quarter").
+        """Convert a floating-point number described in words to a double.
 
-            Arguments:
-            words -- description of the floating-point number.
+        Supports two kinds of descriptions: those with a 'point' (e.g.,
+        "one point two five") and those with a fraction (e.g., "one and
+        a quarter").
 
-            Returns:
-            double representation of the words.
+        Args:
+            words (str): Description of the floating-point number.
+
+        Returns:
+            A double representation of the words.
         """
         def pointFloat(words):
             m = re.search(r'(.*) point (.*)', words)
@@ -193,14 +192,13 @@ class NumberService(object):
         return self.parseInt(words)
 
     def parseInt(self, words):
-        """
-        Parses words to the integer they describe.
+        """Parses words to the integer they describe.
 
-        Arguments:
-        words -- description of the integer.
+        Args:
+            words (str): Description of the integer.
 
         Returns:
-        integer representation of the words.
+            An integer representation of the words.
         """
         # Remove 'and', case-sensitivity
         words = words.replace(" and ", " ").lower()
@@ -242,15 +240,14 @@ class NumberService(object):
 
     @staticmethod
     def parseMagnitude(m):
-        """
-        Parses a number m into a human-ready string representation.
+        """Parses a number m into a human-ready string representation.
         For example, crops off floats if they're too accurate.
 
         Arguments:
-        m -- floating-point number to be cleaned.
+            m (float): Floating-point number to be cleaned.
 
         Returns:
-        human-ready string description of the number.
+            Human-ready string description of the number.
         """
         m = NumberService().parse(m)
 
@@ -285,10 +282,16 @@ class NumberService(object):
         return magString
 
     def longestNumber(self, input):
-        """
-        Extracts the longest valid numerical description from a string.
+        """Extracts the longest valid numerical description from a string.
         Not guaranteed to return a result even if some valid numerical
         description exists (i.e., method is not particularly advanced).
+
+        Args:
+            input (str): An arbitrary string, hopefully containing a number.
+
+        Returns:
+            The number with the longest string description in input,
+            or None if not found.
         """
         split = input.split(' ')
 

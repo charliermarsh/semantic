@@ -50,18 +50,18 @@ class MathService(object):
     }
 
     @staticmethod
-    def applyBinary(a, b, op):
+    def _applyBinary(a, b, op):
         a = float(a)
         b = float(b)
         return op(a, b)
 
     @staticmethod
-    def applyUnary(a, op):
+    def _applyUnary(a, op):
         a = float(a)
         return op(a)
 
     @staticmethod
-    def __preprocess(input):
+    def _preprocess(input):
         """Revise wording to match canonical and expected forms."""
         input = re.sub(r'(\b)a(\b)', r'\g<1>one\g<2>', input)
         input = re.sub(r'to the (.*) power', r'to \g<1>', input)
@@ -121,7 +121,7 @@ class MathService(object):
         return findImplicitMultiplications(input)
 
     @staticmethod
-    def __calculate(numbers, symbols):
+    def _calculate(numbers, symbols):
         """Calculates a final value given a set of numbers and symbols."""
         if len(numbers) is 1:
             return numbers[0]
@@ -135,23 +135,23 @@ class MathService(object):
                     # Apply operation
                     a = numbers[i]
                     b = numbers[i + 1]
-                    result = MathService.applyBinary(a, b, op)
+                    result = MathService._applyBinary(a, b, op)
                     new_numbers = numbers[:i] + [result] + numbers[i + 2:]
                     new_symbols = symbols[:i] + symbols[i + 1:]
 
-                    return MathService.__calculate(new_numbers, new_symbols)
+                    return MathService._calculate(new_numbers, new_symbols)
 
     def parseEquation(self, input):
-        """
-        Solves the equation specified, in words, by input.
+        """Solves the equation specified by the input string.
 
-        Arguments:
-        input -- equation, specified in words.
+        Args:
+            input (str): An equation, specified in words, containing some
+                combination of numbers, binary, and unary operations.
 
         Returns:
-        floating-point solution to equation
+            The floating-point result of carrying out the computation.
         """
-        input = MathService.__preprocess(input)
+        input = MathService._preprocess(input)
         split = input.split(' ')
 
         # Recursive call on unary operators
@@ -164,7 +164,7 @@ class MathService(object):
                 eq2 = ' '.join(split[i + 1:])
 
                 # Calculate second half
-                result = MathService.applyUnary(self.parseEquation(eq2), op)
+                result = MathService._applyUnary(self.parseEquation(eq2), op)
 
                 return self.parseEquation(eq1 + " " + str(result))
 
@@ -204,4 +204,4 @@ class MathService(object):
 
         numbers, symbols = extractNumbersAndSymbols(input)
 
-        return MathService.__calculate(numbers, symbols)
+        return MathService._calculate(numbers, symbols)
