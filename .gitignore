@@ -1,5 +1,5 @@
 env/*
-docs/*
+docs/_*
 MANIFEST
 .Python
 
