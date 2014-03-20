@@ -297,8 +297,7 @@ class DateService(object):
         Arguments:
         input -- string to be parsed.
         tz -- the current timezone (a pytz object)
-        now -- the time from which relative dates should be calculated.
-               Assumed to be datetime.datetime.now(tz=tz) if not provided.
+        now -- the time from which relative dates should be calculated. Assumed to be datetime.datetime.now(tz=tz) if not provided.
 
         Returns:
         A datetime object containing the extracted date from the input snippet,

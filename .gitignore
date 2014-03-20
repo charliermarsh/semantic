@@ -1,4 +1,6 @@
 env/*
+docs/*
+MANIFEST
 .Python
 
 *.py[cod]
