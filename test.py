@@ -1,5 +1,9 @@
 import unittest
 
-if __name__ == '__main__':
+
+def run():
     testsuite = unittest.TestLoader().discover('.')
     unittest.TextTestRunner(verbosity=1).run(testsuite)
+
+if __name__ == '__main__':
+    run()

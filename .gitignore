@@ -1,5 +1,6 @@
 env/*
 docs/_*
+*.egg-info/*
 MANIFEST
 .Python
 

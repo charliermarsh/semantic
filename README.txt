@@ -1,34 +1,34 @@
 ===========
-Intent
+Semantic
 ===========
 
-.. image:: https://badge.fury.io/py/intent.png
-    :target: http://badge.fury.io/py/intent
+.. image:: https://badge.fury.io/py/semantic.png
+    :target: http://badge.fury.io/py/semantic
 
-Intent is a Python library for extracting semantic information from text, including dates, numbers, mathematical equations, and unit conversions.
+Semantic is a Python library for extracting semantic information from text, including dates, numbers, mathematical equations, and unit conversions.
 
-For each of these four semantic types, Intent provides a service module. Typical usage often looks like this::
+For each of these four semantic types, semantic provides a service module. Typical usage often looks like this::
 
     #!/usr/bin/env python
-    from intent.dates import DateService
+    from semantic.dates import DateService
 
     service = DateService()
     date = service.extractDate("On March 3 at 12:15pm...")
     ...
 
-The full documentation can be found `here <https://pythonhosted.org/intent/>`_, while the source code itself is also available on `GitHub <https://github.com/crm416/intent>`_.
+The full documentation can be found `here <https://pythonhosted.org/semantic/>`_, while the source code itself is also available on `GitHub <https://github.com/crm416/semantic>`_.
 
 Installation
 ============
 
-Installing Intent is simple::
+Installing semantic is simple::
 
-    $ pip install intent
+    $ pip install semantic
 
 Features
 ========
 
-Intent contains four main modules, each of which corresponds to a different semantic extractor.
+semantic contains four main modules, each of which corresponds to a different semantic extractor.
 
 Dates (*date.py*)
 -----------------
@@ -49,7 +49,7 @@ Useful for:
 Example usage::
 
     #!/usr/bin/env python
-    from intent.numbers import NumberService
+    from semantic.numbers import NumberService
 
     service = NumberService()
 
@@ -74,7 +74,7 @@ Useful for performing mathematical operations expressed as words.
 Example usage::
 
     #!/usr/bin/env python
-    from intent.solver import MathService
+    from semantic.solver import MathService
 
     service = MathService()
 
@@ -89,7 +89,7 @@ Useful for converting between units expressed as words.
 Example usage::
 
     #!/usr/bin/env python
-    from intent.solver import ConversionService
+    from semantic.solver import ConversionService
 
     service = ConversionService()
 

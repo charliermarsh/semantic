@@ -1,6 +1,6 @@
 import datetime
 import unittest
-from intent.dates import DateService
+from semantic.dates import DateService
 
 
 class TestDate(unittest.TestCase):

@@ -1,6 +1,6 @@
 from math import log, sin, sqrt, e, pi
 import unittest
-from intent.solver import MathService
+from semantic.solver import MathService
 
 
 class TestMath(unittest.TestCase):

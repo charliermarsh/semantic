@@ -1,19 +1,19 @@
-# Intent
+# Semantic
 
-A Python library for extracting semantic information from text, such as dates and numbers. Full documentation is available on [PIP](https://pythonhosted.org/intent/), with a list of primary features below.
+A Python library for extracting semantic information from text, such as dates and numbers. Full documentation is available on [PIP](https://pythonhosted.org/semantic/), with a list of primary features below.
 
-<img src="https://travis-ci.org/crm416/intent.png" title="Build Status Images">
-[![PyPI version](https://badge.fury.io/py/intent.png)](http://badge.fury.io/py/intent)
+<img src="https://travis-ci.org/crm416/semantic.png" title="Build Status Images">
+[![PyPI version](https://badge.fury.io/py/semantic.png)](http://badge.fury.io/py/semantic)
 
 # Installation
 
-Installing Intent is simple
+Installing semantic is simple
 
-    $ pip install intent
+    $ pip install semantic
 
 # Features
 
-Intent consists of four main modules, each of which corresponds to a different semantic extractor.
+semantic consists of four main modules, each of which corresponds to a different semantic extractor.
 
 ## Dates (_date.py_)
 - Extracting relative (e.g., "a week from today") and absolute (e.g., "December 11, 2013") dates from text snippets.

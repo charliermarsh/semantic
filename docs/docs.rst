@@ -1,7 +1,7 @@
 Documentation
 =============
 
-Intent consists of four modules, each of which is responsible for extracting a different type of semantic text:
+Semantic consists of four modules, each of which is responsible for extracting a different type of semantic text:
 
 .. toctree::
    :maxdepth: 2

@@ -1,15 +1,28 @@
-from distutils.core import setup
-from pip.req import parse_requirements
+from setuptools import setup
+from setuptools.command.test import test as TestCommand
+import sys
 
-install_reqs = parse_requirements("requirements.txt")
-reqs = [str(ir.req) for ir in install_reqs]
+requires = ['quantities', 'numpy']
 
-setup(name='intent',
+
+class PyTest(TestCommand):
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = ['tests']
+        self.test_suite = True
+
+    def run_tests(self):
+        import test
+        errno = test.run()
+        sys.exit(errno)
+
+
+setup(name='semantic',
       version='1.0.1',
       description='Common Natural Language Processing Tasks for Python',
       author='Charles Marsh',
       author_email='crmarsh@princeton.edu',
-      url='https://github.com/crm416/intent',
+      url='https://github.com/crm416/semantic',
       classifiers=[
           'Development Status :: 4 - Beta',
           'Environment :: Console',
@@ -22,7 +35,9 @@ setup(name='intent',
           'Topic :: Scientific/Engineering :: Human Machine Interfaces',
           'Topic :: Text Processing :: Linguistic'
       ],
+      install_requires=requires,
+      tests_require=requires,
+      cmdclass={'test': PyTest},
       long_description=open('README.txt').read(),
-      install_requires=reqs,
-      packages=['intent', 'intent.test']
+      packages=['semantic', 'semantic.test']
       )

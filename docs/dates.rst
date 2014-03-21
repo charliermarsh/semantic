@@ -1,8 +1,8 @@
-intent.dates
+semantic.dates
 ============
 
 Used to extract dates and times described as text.
 
-.. automodule:: intent.dates
+.. automodule:: semantic.dates
     :members:
     :undoc-members:

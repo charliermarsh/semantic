@@ -1,6 +1,6 @@
 import unittest
 import quantities as pq
-from intent.units import ConversionService
+from semantic.units import ConversionService
 
 
 class TestConversion(unittest.TestCase):

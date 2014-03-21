@@ -1,36 +1,36 @@
 Tests
 =====
 
-A thorough test suite documenting various use-cases for the Intent modules.
+A thorough test suite documenting various use-cases for the Semantic modules.
 
-intent.test.testConversion
+semantic.test.testConversion
 --------------------------
 
-.. automodule:: intent.test.testConversion
+.. automodule:: semantic.test.testConversion
     :members:
     :undoc-members:
     :show-inheritance:
 
-intent.test.testDates
+semantic.test.testDates
 ---------------------
 
-.. automodule:: intent.test.testDates
+.. automodule:: semantic.test.testDates
     :members:
     :undoc-members:
     :show-inheritance:
 
-intent.test.testMath
+semantic.test.testMath
 --------------------
 
-.. automodule:: intent.test.testMath
+.. automodule:: semantic.test.testMath
     :members:
     :undoc-members:
     :show-inheritance:
 
-intent.test.testNumbers
+semantic.test.testNumbers
 -----------------------
 
-.. automodule:: intent.test.testNumbers
+.. automodule:: semantic.test.testNumbers
     :members:
     :undoc-members:
     :show-inheritance:

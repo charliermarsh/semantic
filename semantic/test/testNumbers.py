@@ -1,5 +1,5 @@
 import unittest
-from intent.numbers import NumberService
+from semantic.numbers import NumberService
 
 
 class TestNumbers(unittest.TestCase):

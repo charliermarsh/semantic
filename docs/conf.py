@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Intent documentation build configuration file, created by
+# semantic documentation build configuration file, created by
 # sphinx-quickstart on Thu Mar 20 11:28:19 2014.
 #
 # This file is execfile()d with the current directory set to its
@@ -45,7 +45,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Intent'
+project = u'semantic'
 copyright = u'2014, Charles Marsh'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -178,7 +178,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Intentdoc'
+htmlhelp_basename = 'semanticdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -198,7 +198,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'Intent.tex', u'Intent Documentation',
+  ('index', 'semantic.tex', u'semantic Documentation',
    u'Charles Marsh', 'manual'),
 ]
 
@@ -228,7 +228,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'intent', u'Intent Documentation',
+    ('index', 'semantic', u'semantic Documentation',
      [u'Charles Marsh'], 1)
 ]
 
@@ -242,8 +242,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'Intent', u'Intent Documentation',
-   u'Charles Marsh', 'Intent', 'One line description of project.',
+  ('index', 'semantic', u'semantic Documentation',
+   u'Charles Marsh', 'semantic', 'One line description of project.',
    'Miscellaneous'),
 ]
 
