@@ -2,7 +2,8 @@
 
 A Python library for extracting semantic information from text, such as dates and numbers. Full documentation is available on [PIP](https://pythonhosted.org/semantic/), with a list of primary features below.
 
-<img src="https://travis-ci.org/crm416/semantic.png" title="Build Status Images">
+[![Build Status](https://travis-ci.org/crm416/semantic.png)](https://travis-ci.org/crm416/semantic.png)
+
 [![PyPI version](https://badge.fury.io/py/semantic.png)](http://badge.fury.io/py/semantic)
 
 # Installation
