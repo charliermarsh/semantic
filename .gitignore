@@ -1,3 +1,4 @@
+# Packaging
 env/*
 docs/_*
 *.egg-info/*
