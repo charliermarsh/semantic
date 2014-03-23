@@ -18,7 +18,7 @@ class PyTest(TestCommand):
 
 
 setup(name='semantic',
-      version='1.0.1',
+      version='1.0.2',
       description='Common Natural Language Processing Tasks for Python',
       author='Charles Marsh',
       author_email='crmarsh@princeton.edu',
