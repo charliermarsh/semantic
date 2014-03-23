@@ -1,9 +1,11 @@
 import re
 import datetime
+from itertools import izip_longest
 from numbers import NumberService
 
 
 class DateService(object):
+
     """Initialize a DateService for extracting dates from text.
 
     Args:
@@ -116,7 +118,8 @@ class DateService(object):
             tomorrow
             |tonight
             |today
-            |(next|this)?[\ \b](morning|afternoon|evening|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)
+            |(next|this)[\ \b](morning|afternoon|evening|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)
+            |(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)
             |(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|June?|July?|Aug(?:ust)?|Sept(?:ember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\ (\w+)((\s|\-)?\w*)
         )
         """)
@@ -128,7 +131,7 @@ class DateService(object):
             morning
             |afternoon
             |evening
-            |(\d{2}\:\d{2})\ ?(am|pm)?
+            |(\d{1,2}\:\d{2})\ ?(am|pm)?
             |in\ (.+?)\ (hours|minutes)(\ (?:and\ )?(.+?)\ (hours|minutes))?
         )
         .*?""")
@@ -136,28 +139,39 @@ class DateService(object):
     def _preprocess(self, input):
         return input.replace('-', ' ').lower()
 
-    def parseDay(self, input):
-        """Extracts day-related information from an input string.
-        Ignores any information related to the specific time-of-day."""
+    def extractDays(self, input):
+        """Extracts all day-related information from an input string.
+        Ignores any information related to the specific time-of-day.
+
+        Args:
+            input (str): Input string to be parsed.
+
+        Returns:
+            A list of datetime objects containing the extracted date from the
+            input snippet, or an empty list if none found.
+        """
         input = self._preprocess(input)
 
         def extractDayOfWeek(dayMatch):
-            return self.__daysOfWeek__.index(dayMatch.group(5))
+            if dayMatch.group(5) in self.__daysOfWeek__:
+                return self.__daysOfWeek__.index(dayMatch.group(5))
+            elif dayMatch.group(6) in self.__daysOfWeek__:
+                return self.__daysOfWeek__.index(dayMatch.group(6))
 
         def extractMonth(dayMatch):
-            if dayMatch.group(6) in self.__months__:
-                return self.__months__.index(dayMatch.group(6)) + 1
-            elif dayMatch.group(6) in self.__shortMonths__:
-                return self.__shortMonths__.index(dayMatch.group(6)) + 1
+            if dayMatch.group(7) in self.__months__:
+                return self.__months__.index(dayMatch.group(7)) + 1
+            elif dayMatch.group(7) in self.__shortMonths__:
+                return self.__shortMonths__.index(dayMatch.group(7)) + 1
 
         def extractDay(dayMatch):
-            combined = dayMatch.group(7) + dayMatch.group(8)
+            combined = dayMatch.group(8) + dayMatch.group(9)
             if combined in self.__dateDescriptors__:
                 return self.__dateDescriptors__[combined]
-            elif dayMatch.group(7) in self.__dateDescriptors__:
-                return self.__dateDescriptors__[dayMatch.group(7)]
-            elif int(dayMatch.group(7)) in self.__dateDescriptors__.values():
-                return int(dayMatch.group(7))
+            elif dayMatch.group(8) in self.__dateDescriptors__:
+                return self.__dateDescriptors__[dayMatch.group(8)]
+            elif int(dayMatch.group(8)) in self.__dateDescriptors__.values():
+                return int(dayMatch.group(8))
 
         def extractDaysFrom(dayMatch):
             if not dayMatch.group(1):
@@ -189,121 +203,148 @@ class DateService(object):
             elif dayMatch.group(2) == 'day':
                 return factor * 1
 
-        dayMatch = self._dayRegex.search(input)
+        def handleMatch(dayMatch):
+            def safe(exp):
+                """For safe evaluation of regex groups"""
+                try:
+                    return exp()
+                except:
+                    return False
 
-        # Extract key terms
-        def safe(exp):
-            """For safe evaluation of regex groups"""
-            try:
-                return exp()
-            except:
-                return False
+            days_from = safe(lambda: extractDaysFrom(dayMatch))
+            today = safe(lambda: dayMatch.group(3) in self.__todayMatches__)
+            tomorrow = safe(lambda: dayMatch.group(3)
+                            in self.__tomorrowMatches__)
+            next_week = safe(lambda: dayMatch.group(4) == 'next')
+            day_of_week = safe(lambda: extractDayOfWeek(dayMatch))
+            month = safe(lambda: extractMonth(dayMatch))
+            day = safe(lambda: extractDay(dayMatch))
 
-        days_from = safe(lambda: extractDaysFrom(dayMatch))
-        today = safe(lambda: dayMatch.group(3) in self.__todayMatches__)
-        tomorrow = safe(lambda: dayMatch.group(3) in self.__tomorrowMatches__)
-        next_week = safe(lambda: dayMatch.group(4) == 'next')
-        day_of_week = safe(lambda: extractDayOfWeek(dayMatch))
-        month = safe(lambda: extractMonth(dayMatch))
-        day = safe(lambda: extractDay(dayMatch))
+            # Convert extracted terms to datetime object
+            if not dayMatch:
+                return None
+            elif today:
+                d = self.now
+            elif tomorrow:
+                d = self.now + datetime.timedelta(days=1)
+            elif day_of_week:
+                current_day_of_week = self.now.weekday()
+                num_days_away = (day_of_week - current_day_of_week) % 7
 
-        # Convert extracted terms to datetime object
-        if not dayMatch:
-            return None
-        elif today:
-            d = self.now
-        elif tomorrow:
-            d = self.now + datetime.timedelta(days=1)
-        elif day_of_week:
-            current_day_of_week = self.now.weekday()
-            num_days_away = (day_of_week - current_day_of_week) % 7
+                if next_week:
+                    num_days_away += 7
 
-            if next_week:
-                num_days_away += 7
+                d = self.now + \
+                    datetime.timedelta(days=num_days_away)
+            elif month and day:
+                d = datetime.datetime(
+                    self.now.year, month, day,
+                    self.now.hour, self.now.minute)
 
-            d = self.now + \
-                datetime.timedelta(days=num_days_away)
-        elif month and day:
-            d = datetime.datetime(
-                self.now.year, month, day,
-                self.now.hour, self.now.minute)
+            if days_from:
+                d += datetime.timedelta(days=days_from)
 
-        if days_from:
-            d += datetime.timedelta(days=days_from)
+            return d
 
-        return d
+        matches = self._dayRegex.finditer(input)
 
-    def parseTime(self, input):
+        return [handleMatch(dayMatch) for dayMatch in matches]
+
+    def extractDay(self, input):
+        """Returns the first time-related date found in the input string,
+        or None if not found."""
+        day = self.extractDay(input)
+        if day:
+            return day[0]
+        return None
+
+    def extractTimes(self, input):
         """Extracts time-related information from an input string.
         Ignores any information related to the specific date, focusing
         on the time-of-day.
+
+        Args:
+            input (str): Input string to be parsed.
+
+        Returns:
+            A list of datetime objects containing the extracted times from the
+            input snippet, or an empty list if none found.
         """
-        input = self._preprocess(input)
+        def handleMatch(time):
+            relative = False
 
-        time = self._timeRegex.match(input)
-        relative = False
-
-        if not time:
-            return None
-
-        # Default times: 8am, 12pm, 7pm
-        elif time.group(1) == 'morning':
-            h = 8
-            m = 0
-        elif time.group(1) == 'afternoon':
-            h = 12
-            m = 0
-        elif time.group(1) == 'evening':
-            h = 19
-            m = 0
-        elif time.group(4) and time.group(5):
-            h, m = 0, 0
-
-            # Extract hours difference
-            converter = NumberService()
-            try:
-                diff = converter.parse(time.group(4))
-            except:
+            if not time:
                 return None
 
-            if time.group(5) == 'hours':
-                h += diff
-            else:
-                m += diff
+            # Default times: 8am, 12pm, 7pm
+            elif time.group(1) == 'morning':
+                h = 8
+                m = 0
+            elif time.group(1) == 'afternoon':
+                h = 12
+                m = 0
+            elif time.group(1) == 'evening':
+                h = 19
+                m = 0
+            elif time.group(4) and time.group(5):
+                h, m = 0, 0
 
-            # Extract minutes difference
-            if time.group(6):
+                # Extract hours difference
                 converter = NumberService()
                 try:
-                    diff = converter.parse(time.group(7))
+                    diff = converter.parse(time.group(4))
                 except:
                     return None
 
-                if time.group(8) == 'hours':
+                if time.group(5) == 'hours':
                     h += diff
                 else:
                     m += diff
 
-            relative = True
-        else:
-            # Convert from "HH:MM pm" format
-            t = time.group(2)
-            h, m = int(t.split(':')[0]) % 12, int(t.split(':')[1])
+                # Extract minutes difference
+                if time.group(6):
+                    converter = NumberService()
+                    try:
+                        diff = converter.parse(time.group(7))
+                    except:
+                        return None
 
-            try:
-                if time.group(3) == 'pm':
-                    h += 12
-            except IndexError:
-                pass
+                    if time.group(8) == 'hours':
+                        h += diff
+                    else:
+                        m += diff
 
-        if relative:
-            return self.now + datetime.timedelta(hours=h, minutes=m)
-        else:
-            return datetime.datetime(
-                self.now.year, self.now.month, self.now.day, h, m
-            )
+                relative = True
+            else:
+                # Convert from "HH:MM pm" format
+                t = time.group(2)
+                h, m = int(t.split(':')[0]) % 12, int(t.split(':')[1])
 
-    def parseDate(self, input):
+                try:
+                    if time.group(3) == 'pm':
+                        h += 12
+                except IndexError:
+                    pass
+
+            if relative:
+                return self.now + datetime.timedelta(hours=h, minutes=m)
+            else:
+                return datetime.datetime(
+                    self.now.year, self.now.month, self.now.day, h, m
+                )
+
+        input = self._preprocess(input)
+        return [handleMatch(time) for time in self._timeRegex.finditer(input)]
+
+    def extractTime(self, input):
+        """Returns the first time-related date found in the input string,
+        or None if not found."""
+        times = self.extractTimes(input)
+        if times:
+            return times[0]
+        return None
+
+    def extractDates(self, input):
         """Extract semantic date information from an input string.
         In effect, runs both parseDay and parseTime on the input
         string and merges the results to produce a comprehensive
@@ -313,23 +354,33 @@ class DateService(object):
             input (str): Input string to be parsed.
 
         Returns:
-            A datetime object containing the extracted date from the input
-            snippet, or None if not found.
+            A list of datetime objects containing the extracted dates from the
+            input snippet, or an empty list if not found.
         """
-        day = self.parseDay(input)
-        time = self.parseTime(input)
+        def merge((day, time)):
+            if not (day or time):
+                return None
 
-        if not (day or time):
-            return None
+            if not day:
+                return time
+            if not time:
+                return day
 
-        if not day:
-            return time
-        if not time:
-            return day
+            return datetime.datetime(
+                day.year, day.month, day.day, time.hour, time.minute
+            )
 
-        return datetime.datetime(
-            day.year, day.month, day.day, time.hour, time.minute
-        )
+        days = self.extractDays(input)
+        times = self.extractTimes(input)
+        return map(merge, izip_longest(days, times, fillvalue=None))
+
+    def extractDate(self, input):
+        """Returns the first date found in the input string, or None if not
+        found."""
+        dates = self.extractDates(input)
+        if dates:
+            return dates[0]
+        return None
 
     def convertDay(self, day, prefix="", weekday=False):
         """Convert a datetime object representing a day into a human-ready
@@ -419,7 +470,7 @@ class DateService(object):
         return dayString + " at " + timeString
 
 
-def extractDate(input, tz=None, now=None):
+def extractDates(input, tz=None, now=None):
     """Extract semantic date information from an input string.
     This is a convenience method which would only be used if
     you'd rather not initialize a DateService object.
@@ -435,7 +486,7 @@ def extractDate(input, tz=None, now=None):
             Uses datetime.datetime.now() if none is supplied.
 
     Returns:
-        A datetime objected extracted from input, or None if not found.
+        A list of datetime objects extracted from input.
     """
     service = DateService(tz=tz, now=now)
-    return service.parseDate(input)
+    return service.extractDates(input)

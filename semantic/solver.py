@@ -205,3 +205,20 @@ class MathService(object):
         numbers, symbols = extractNumbersAndSymbols(input)
 
         return MathService._calculate(numbers, symbols)
+
+
+def parseEquation(self, input):
+    """Solves the equation specified by the input string. This is a convenience
+    method which would only be used if you'd rather not initialize a
+    NumberService object.
+
+    Args:
+        input (str): An equation, specified in words, containing some
+            combination of numbers, binary, and unary operations.
+
+    Returns:
+        The floating-point result of carrying out the computation.
+    """
+
+    service = NumberService()
+    return service.parseEquation(input)
