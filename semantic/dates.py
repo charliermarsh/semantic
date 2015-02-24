@@ -133,6 +133,8 @@ class DateService(object):
             |evening
             |(\d{1,2}\:\d{2})\ ?(am|pm)?
             |in\ (.+?)\ (hours|minutes)(\ (?:and\ )?(.+?)\ (hours|minutes))?
+            |(\d{1,2})(?=\s*(am|pm))
+            |(at\ *)(?=(\d{1,2})(?!\s*(?:am|pm)))
         )
         .*?""")
 
@@ -170,8 +172,17 @@ class DateService(object):
                 return self.__dateDescriptors__[combined]
             elif dayMatch.group(8) in self.__dateDescriptors__:
                 return self.__dateDescriptors__[dayMatch.group(8)]
-            elif int(dayMatch.group(8)) in self.__dateDescriptors__.values():
-                return int(dayMatch.group(8))
+            try:
+                # convert integer strings to ints
+                number = int(dayMatch.group(8))
+            except ValueError:
+                # catch things like 1st, 2nd, 3rd
+                number = int(dayMatch.group(8)[:-2])
+
+            if 0 < number < 32:
+                return number
+
+            return None
 
         def extractDaysFrom(dayMatch):
             if not dayMatch.group(1):
@@ -208,7 +219,8 @@ class DateService(object):
                 """For safe evaluation of regex groups"""
                 try:
                     return exp()
-                except:
+                except Exception as e:
+                    print e
                     return False
 
             days_from = safe(lambda: extractDaysFrom(dayMatch))
@@ -219,6 +231,8 @@ class DateService(object):
             day_of_week = safe(lambda: extractDayOfWeek(dayMatch))
             month = safe(lambda: extractMonth(dayMatch))
             day = safe(lambda: extractDay(dayMatch))
+
+            print today, tomorrow, next_week, day_of_week, month, day
 
             # Convert extracted terms to datetime object
             if not dayMatch:
@@ -287,6 +301,7 @@ class DateService(object):
                 h = 19
                 m = 0
             elif time.group(4) and time.group(5):
+                # match relative times, e.g. in 5 hours
                 h, m = 0, 0
 
                 # Extract hours difference
@@ -315,6 +330,19 @@ class DateService(object):
                         m += diff
 
                 relative = True
+            elif time.group(9) and time.group(10):
+                # match hour only time, e.g. 4 pm
+                h = int(time.group(9))
+                m = 0
+
+                if time.group(10) == 'pm':
+                    h += 12
+
+            elif time.group(11) and time.group(12):
+                # match phrases like "at 3?"
+                h = int(time.group(12))
+                m = 0
+
             else:
                 # Convert from "HH:MM pm" format
                 t = time.group(2)

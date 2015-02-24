@@ -6,6 +6,7 @@ MANIFEST
 .Python
 
 *.py[cod]
+*.ipynb
 
 # C extensions
 *.so
