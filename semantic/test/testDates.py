@@ -49,7 +49,7 @@ class TestDate(unittest.TestCase):
         self.compareDate(input, target)
 
     def testOrdinalNums(self):
-        input = "Remind me on January 2st"
+        input = "Remind me on January 2nd"
         target = datetime.datetime(2014, 1, 2)
         self.compareDate(input, target)
 
@@ -128,6 +128,26 @@ class TestDate(unittest.TestCase):
         input = "I want to leave in two hours and twenty minutes"
         target = datetime.datetime.today() + \
             datetime.timedelta(hours=2, minutes=20)
+        self.compareTime(input, target)
+
+    def testTimeNoMinutes(self):
+        input = "Let's go to the park at 8pm tomorrow"
+        target = datetime.datetime(2014, 1, 2, 20, 0)
+        self.compareTime(input, target)
+
+    def testAmbiguousTime(self):
+        input = "Let's go to the park at 8 tomorrow"
+        target = datetime.datetime(2014, 1, 2, 8, 0)
+        self.compareTime(input, target)
+
+    def testMilitaryMorningTime(self):
+        input = "Let's go to the park at 08:00 tomorrow"
+        target = datetime.datetime(2014, 1, 2, 8, 0)
+        self.compareTime(input, target)
+
+    def testMilitaryAfternoonTime(self):
+        input = "Let's go to the park at 20:00 tomorrow"
+        target = datetime.datetime(2014, 1, 2, 20, 0)
         self.compareTime(input, target)
 
     #

@@ -131,10 +131,10 @@ class DateService(object):
             morning
             |afternoon
             |evening
-            |(\d{1,2}\:\d{2})\ ?(am|pm)?
+            |(\d{1,2}\:\d{2})\ *(am|pm)?
             |in\ (.+?)\ (hours|minutes)(\ (?:and\ )?(.+?)\ (hours|minutes))?
             |(\d{1,2})(?=\s*(am|pm))
-            |(at\ *)(?=(\d{1,2})(?!\s*(?:\d:\d{2})?(?:am|pm)?))
+            |(at\ *)(?=(\d{1,2})(?!(?:\d?:\d+|am|pm)))
         )
         .*?""")
 
@@ -343,11 +343,11 @@ class DateService(object):
             else:
                 # Convert from "HH:MM pm" format
                 t = time.group(2)
-                h, m = int(t.split(':')[0]) % 12, int(t.split(':')[1])
+                h, m = int(t.split(':')[0]), int(t.split(':')[1])
 
                 try:
                     if time.group(3) == 'pm':
-                        h += 12
+                        h = (h % 12) + 12
                 except IndexError:
                     pass
 
