@@ -1,35 +1,33 @@
 import datetime
 import unittest
+from freezegun import freeze_time
 from semantic.dates import DateService
 
 
+@freeze_time('2014-01-01 00:00')
 class TestDate(unittest.TestCase):
 
     def compareDate(self, input, target):
         service = DateService()
         result = service.extractDate(input)
-        self.assertEqual(result.month, target.month)
-        self.assertEqual(result.day, target.day)
+        self.assertEqual(target, result)
 
     def compareTime(self, input, target):
         service = DateService()
         result = service.extractDate(input)
-        self.assertEqual(result.hour, target.hour)
-        self.assertEqual(result.minute, target.minute)
+        self.assertEqual(target, result)
 
     def compareDates(self, input, targets):
         service = DateService()
         results = service.extractDates(input)
         for (result, target) in zip(results, targets):
-            self.assertEqual(result.month, target.month)
-            self.assertEqual(result.day, target.day)
+            self.assertEqual(target, result)
 
     def compareTimes(self, input, targets):
         service = DateService()
         results = service.extractDates(input)
         for (result, target) in zip(results, targets):
-            self.assertEqual(result.hour, target.hour)
-            self.assertEqual(result.minute, target.minute)
+            self.assertEqual(target.time(), result.time())
 
     #
     #  Date Tests
@@ -48,6 +46,11 @@ class TestDate(unittest.TestCase):
     def testExactNums(self):
         input = "Remind me on January 26"
         target = datetime.datetime(2014, 1, 26)
+        self.compareDate(input, target)
+
+    def testOrdinalNums(self):
+        input = "Remind me on January 2st"
+        target = datetime.datetime(2014, 1, 2)
         self.compareDate(input, target)
 
     def testWeekFromExact(self):
@@ -90,7 +93,7 @@ class TestDate(unittest.TestCase):
 
     def testTomorrow(self):
         input = "Tomorrow morning, go to the grocery store"
-        target = datetime.datetime.today() + datetime.timedelta(days=1)
+        target = datetime.datetime(2014, 1, 2, 8, 0)
         self.compareDate(input, target)
 
     def testToday(self):
@@ -100,7 +103,7 @@ class TestDate(unittest.TestCase):
 
     def testThis(self):
         input = "This morning, I went to the gym"
-        target = datetime.datetime.today()
+        target = datetime.datetime(2014, 1, 1, 8, 0)
         self.compareDate(input, target)
 
     def testIllegalDate(self):
@@ -109,7 +112,7 @@ class TestDate(unittest.TestCase):
 
     def testMultiple(self):
         input = "Tomorrow, I'll schedule the meeting for June 9 at 1:30pm"
-        target = datetime.datetime.today() + datetime.timedelta(days=1)
+        target = datetime.datetime(2014, 1, 2, 13, 30)
         self.compareDate(input, target)
 
     #
@@ -118,9 +121,7 @@ class TestDate(unittest.TestCase):
 
     def testExactTime(self):
         input = "Let's go to the park at 12:51pm tomorrow"
-        tomorrow = datetime.datetime.today() + datetime.timedelta(days=1)
-        target = datetime.datetime(
-            tomorrow.year, tomorrow.month, tomorrow.day, 12, 51)
+        target = datetime.datetime(2014, 1, 2, 12, 51)
         self.compareTime(input, target)
 
     def testInExactTime(self):

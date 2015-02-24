@@ -134,7 +134,7 @@ class DateService(object):
             |(\d{1,2}\:\d{2})\ ?(am|pm)?
             |in\ (.+?)\ (hours|minutes)(\ (?:and\ )?(.+?)\ (hours|minutes))?
             |(\d{1,2})(?=\s*(am|pm))
-            |(at\ *)(?=(\d{1,2})(?!\s*(?:am|pm)))
+            |(at\ *)(?=(\d{1,2})(?!\s*(?:\d:\d{2})?(?:am|pm)?))
         )
         .*?""")
 
@@ -219,8 +219,7 @@ class DateService(object):
                 """For safe evaluation of regex groups"""
                 try:
                     return exp()
-                except Exception as e:
-                    print e
+                except Exception:
                     return False
 
             days_from = safe(lambda: extractDaysFrom(dayMatch))
@@ -231,8 +230,6 @@ class DateService(object):
             day_of_week = safe(lambda: extractDayOfWeek(dayMatch))
             month = safe(lambda: extractMonth(dayMatch))
             day = safe(lambda: extractDay(dayMatch))
-
-            print today, tomorrow, next_week, day_of_week, month, day
 
             # Convert extracted terms to datetime object
             if not dayMatch:
