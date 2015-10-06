@@ -22,7 +22,7 @@ setup(name='semantic',
       description='Common Natural Language Processing Tasks for Python',
       author='Charles Marsh',
       author_email='crmarsh@princeton.edu',
-      url='https://github.com/abroekhof/semantic',
+      url='https://github.com/crm416/semantic',
       classifiers=[
           'Development Status :: 4 - Beta',
           'Environment :: Console',
