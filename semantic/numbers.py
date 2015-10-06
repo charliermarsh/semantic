@@ -110,39 +110,7 @@ class NumberService(object):
         if guess is not None:
             return guess
 
-        split = words.split(' ')
-
-        # Replace final ordinal/fraction with number
-        if split[-1] in self.__fractions__:
-            split[-1] = self.__fractions__[split[-1]]
-        elif split[-1] in self.__ordinals__:
-            split[-1] = self.__ordinals__[split[-1]]
-
-        parsed_ordinals = ' '.join(split)
-
         return self.parseFloat(words)
-
-    def parseFraction(self, string):
-        fractions = self.__ordinals__
-        fractions.update(self.__fractions__)
-
-        words = string.split(' ')
-        for idx, word in enumerate(words):
-            if word[-1] == 's':
-                words[idx] = word[:-1]
-            elif word == 'a':
-                words[idx] = 'one'
-
-        if len(words) == 2 and words[0] in self.__small__ and words[1] in fractions:
-            print(words)
-            return self.__small__[words[0]]/self.__small__[fractions[words[1]]]
-        elif len(words) == 1 and words[0] in fractions:
-            print(string)
-            print(words)
-            print(len(words))
-            return 1/self.__small__[fractions[words[0]]]
-        else:
-            return None
 
     def convert_ordinal(self, word):
         ordinals = self.__ordinals__
@@ -170,9 +138,9 @@ class NumberService(object):
             return None
 
         if len(split) == 1:
-            return 1/self.parse(self.convert_ordinal(split[0]))
+            return 1.0/self.parse(self.convert_ordinal(split[0]))
         else:
-            split = [self.convert_ordinal(word) for word in split]
+            split = [self.convert_ordinal(token) for token in split]
             # Split fraction into num (regular integer), denom (ordinal)
             num = split[:1]
             denom = split[1:]
@@ -215,8 +183,6 @@ class NumberService(object):
 
                 return self.parseInt(whole) + total
             return None
-
-
 
         # Extract "one point two five"-type float
         result = pointFloat(words)
