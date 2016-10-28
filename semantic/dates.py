@@ -402,7 +402,7 @@ class DateService(object):
         def sameDay(d1, d2):
             d = d1.day == d2.day
             m = d1.month == d2.month
-            y = d1.year == d2.yaer
+            y = d1.year == d2.year
             return d and m and y
 
         tom = self.now + datetime.timedelta(days=1)
