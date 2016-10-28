@@ -72,7 +72,7 @@ Useful for converting between units expressed as words.
 Example usage:
 
     #!/usr/bin/env python
-    from semantic.solver import ConversionService
+    from semantic.units import ConversionService
 
     service = ConversionService()
 
