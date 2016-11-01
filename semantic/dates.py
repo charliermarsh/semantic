@@ -227,7 +227,7 @@ class DateService(object):
                 d = self.now
             elif tomorrow:
                 d = self.now + datetime.timedelta(days=1)
-            elif day_of_week is not None:
+            elif type(day_of_week) == int:
                 current_day_of_week = self.now.weekday()
                 num_days_away = (day_of_week - current_day_of_week) % 7
 
