@@ -231,9 +231,9 @@ class NumberService(object):
 
         return textToNumber(words)
 
-    def isValid(self, input):
+    def isValid(self, inp):
         try:
-            self.parse(input)
+            self.parse(inp)
             return True
         except:
             return False
@@ -281,19 +281,19 @@ class NumberService(object):
         magString = re.sub(r'\b0(\d+)', '\g<1>', magString)
         return magString
 
-    def longestNumber(self, input):
+    def longestNumber(self, inp):
         """Extracts the longest valid numerical description from a string.
         Not guaranteed to return a result even if some valid numerical
         description exists (i.e., method is not particularly advanced).
 
         Args:
-            input (str): An arbitrary string, hopefully containing a number.
+            inp (str): An arbitrary string, hopefully containing a number.
 
         Returns:
             The number with the longest string description in input,
             or None if not found.
         """
-        split = input.split(' ')
+        split = inp.split(' ')
 
         # Assume just a single number
         numStart = None

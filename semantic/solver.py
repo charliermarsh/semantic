@@ -1,7 +1,9 @@
+from __future__ import division
 import re
 from math import sqrt, sin, cos, log, tan, acos, asin, atan, e, pi
-from operator import add, sub, div, mul, pow
-from numbers import NumberService
+from operator import truediv as div
+from operator import add, sub, mul, pow
+from .numbers import NumberService
 
 
 class MathService(object):
@@ -61,27 +63,27 @@ class MathService(object):
         return op(a)
 
     @staticmethod
-    def _preprocess(input):
+    def _preprocess(inp):
         """Revise wording to match canonical and expected forms."""
-        input = re.sub(r'(\b)a(\b)', r'\g<1>one\g<2>', input)
-        input = re.sub(r'to the (.*) power', r'to \g<1>', input)
-        input = re.sub(r'to the (.*?)(\b)', r'to \g<1>\g<2>', input)
-        input = re.sub(r'log of', r'log', input)
-        input = re.sub(r'(square )?root( of)?', r'sqrt', input)
-        input = re.sub(r'squared', r'to two', input)
-        input = re.sub(r'cubed', r'to three', input)
-        input = re.sub(r'divided?( by)?', r'divide', input)
-        input = re.sub(r'(\b)over(\b)', r'\g<1>divide\g<2>', input)
-        input = re.sub(r'(\b)EE(\b)', r'\g<1>e\g<2>', input)
-        input = re.sub(r'(\b)E(\b)', r'\g<1>e\g<2>', input)
-        input = re.sub(r'(\b)pie(\b)', r'\g<1>pi\g<2>', input)
-        input = re.sub(r'(\b)PI(\b)', r'\g<1>pi\g<2>', input)
+        inp = re.sub(r'(\b)a(\b)', r'\g<1>one\g<2>', inp)
+        inp = re.sub(r'to the (.*) power', r'to \g<1>', inp)
+        inp = re.sub(r'to the (.*?)(\b)', r'to \g<1>\g<2>', inp)
+        inp = re.sub(r'log of', r'log', inp)
+        inp = re.sub(r'(square )?root( of)?', r'sqrt', inp)
+        inp = re.sub(r'squared', r'to two', inp)
+        inp = re.sub(r'cubed', r'to three', inp)
+        inp = re.sub(r'divided?( by)?', r'divide', inp)
+        inp = re.sub(r'(\b)over(\b)', r'\g<1>divide\g<2>', inp)
+        inp = re.sub(r'(\b)EE(\b)', r'\g<1>e\g<2>', inp)
+        inp = re.sub(r'(\b)E(\b)', r'\g<1>e\g<2>', inp)
+        inp = re.sub(r'(\b)pie(\b)', r'\g<1>pi\g<2>', inp)
+        inp = re.sub(r'(\b)PI(\b)', r'\g<1>pi\g<2>', inp)
 
-        def findImplicitMultiplications(input):
+        def findImplicitMultiplications(inp):
             """Replace omitted 'times' references."""
 
-            def findConstantMultiplications(input):
-                split = input.split(' ')
+            def findConstantMultiplications(inp):
+                split = inp.split(' ')
                 revision = ""
 
                 converter = NumberService()
@@ -96,8 +98,8 @@ class MathService(object):
 
                 return revision
 
-            def findUnaryMultiplications(input):
-                split = input.split(' ')
+            def findUnaryMultiplications(inp):
+                split = inp.split(' ')
                 revision = ""
 
                 for i, w in enumerate(split):
@@ -116,9 +118,9 @@ class MathService(object):
 
                 return revision
 
-            return findUnaryMultiplications(findConstantMultiplications(input))
+            return findUnaryMultiplications(findConstantMultiplications(inp))
 
-        return findImplicitMultiplications(input)
+        return findImplicitMultiplications(inp)
 
     @staticmethod
     def _calculate(numbers, symbols):
@@ -141,18 +143,18 @@ class MathService(object):
 
                     return MathService._calculate(new_numbers, new_symbols)
 
-    def parseEquation(self, input):
+    def parseEquation(self, inp):
         """Solves the equation specified by the input string.
 
         Args:
-            input (str): An equation, specified in words, containing some
+            inp (str): An equation, specified in words, containing some
                 combination of numbers, binary, and unary operations.
 
         Returns:
             The floating-point result of carrying out the computation.
         """
-        input = MathService._preprocess(input)
-        split = input.split(' ')
+        inp = MathService._preprocess(inp)
+        split = inp.split(' ')
 
         # Recursive call on unary operators
         for i, w in enumerate(split):
@@ -168,13 +170,13 @@ class MathService(object):
 
                 return self.parseEquation(eq1 + " " + str(result))
 
-        def extractNumbersAndSymbols(input):
+        def extractNumbersAndSymbols(inp):
             numbers = []
             symbols = []
 
             # Divide into values (numbers), operators (symbols)
             next_number = ""
-            for w in input.split(' '):
+            for w in inp.split(' '):
                 if w in self.__binaryOperators__:
                     symbols.append(self.__binaryOperators__[w])
 
@@ -202,18 +204,18 @@ class MathService(object):
 
             return numbers, symbols
 
-        numbers, symbols = extractNumbersAndSymbols(input)
+        numbers, symbols = extractNumbersAndSymbols(inp)
 
         return MathService._calculate(numbers, symbols)
 
 
-def parseEquation(self, input):
+def parseEquation(self, inp):
     """Solves the equation specified by the input string. This is a convenience
     method which would only be used if you'd rather not initialize a
     NumberService object.
 
     Args:
-        input (str): An equation, specified in words, containing some
+        inp (str): An equation, specified in words, containing some
             combination of numbers, binary, and unary operations.
 
     Returns:
@@ -221,4 +223,4 @@ def parseEquation(self, input):
     """
 
     service = NumberService()
-    return service.parseEquation(input)
+    return service.parseEquation(inp)
