@@ -29,6 +29,17 @@ class TestNumbers(unittest.TestCase):
         inp = "five hundred and ten point one five"
         self.compareNumbers(inp, 510.15)
 
+    def testFrac(self):
+        input = "half"
+        self.compareNumbers(input, 1.0/2)
+
+    def testFrac2(self):
+        input = "four twelfths"
+        self.compareNumbers(input, 4.0/12)
+
+    def testFrac3(self):
+        input = "third"
+        self.compareNumbers(input, 1.0/3)
     #
     # Integer tests
     #

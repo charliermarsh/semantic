@@ -30,7 +30,8 @@ class NumberService(object):
         'sixty': 60,
         'seventy': 70,
         'eighty': 80,
-        'ninety': 90
+        'ninety': 90,
+        'hundred': 100
     }
 
     __magnitude__ = {
@@ -54,12 +55,12 @@ class NumberService(object):
         'fourth': 'four',
         'fifth': 'five',
         'sixth': 'six',
-        'seventh': 'seventh',
+        'seventh': 'seven',
         'eighth': 'eight',
         'ninth': 'nine',
         'tenth': 'ten',
         'eleventh': 'eleven',
-        'twelth': 'twelve',
+        'twelfth': 'twelve',
         'thirteenth': 'thirteen',
         'fifteenth': 'fifteen',
         'sixteenth': 'sixteen',
@@ -109,17 +110,52 @@ class NumberService(object):
         if guess is not None:
             return guess
 
-        split = words.split(' ')
+        return self.parseFloat(words)
 
-        # Replace final ordinal/fraction with number
-        if split[-1] in self.__fractions__:
-            split[-1] = self.__fractions__[split[-1]]
-        elif split[-1] in self.__ordinals__:
-            split[-1] = self.__ordinals__[split[-1]]
+    def convert_ordinal(self, word):
+        ordinals = self.__ordinals__
+        ordinals.update(self.__fractions__)
+        return ordinals.get(word, word)
 
-        parsed_ordinals = ' '.join(split)
+    def fractionFloat(self, words):
+        m = re.search(r'(.*) and (.*)', words)
+        if m:
+            whole = self.parseInt(m.group(1))
+            frac = m.group(2)
+        else:
+            whole = 0
+            frac = words
 
-        return self.parseFloat(parsed_ordinals)
+        # Replace plurals
+        frac = re.sub(r'(\w+)s(\b)', '\g<1>\g<2>', frac)
+
+        # Convert 'a' to 'one' (e.g., 'a third' to 'one third')
+        frac = re.sub(r'(\b)a(\b)', '\g<1>one\g<2>', frac)
+
+        split = frac.split(' ')
+
+        if split[-1] not in self.__fractions__ and split[-1] not in self.__ordinals__:
+            return None
+
+        if len(split) == 1:
+            return 1.0/self.parse(self.convert_ordinal(split[0]))
+        else:
+            split = [self.convert_ordinal(token) for token in split]
+            # Split fraction into num (regular integer), denom (ordinal)
+            num = split[:1]
+            denom = split[1:]
+
+            while denom:
+                try:
+                    # Test for valid num, denom
+                    num_value = self.parse(' '.join(num))
+                    denom_value = self.parse(' '.join(denom))
+                    return whole + float(num_value) / denom_value
+                except:
+                    # Add another word to num
+                    num += denom[:1]
+                    denom = denom[1:]
+        return None
 
     def parseFloat(self, words):
         """Convert a floating-point number described in words to a double.
@@ -148,43 +184,13 @@ class NumberService(object):
                 return self.parseInt(whole) + total
             return None
 
-        def fractionFloat(words):
-            m = re.search(r'(.*) and (.*)', words)
-            if m:
-                whole = self.parseInt(m.group(1))
-                frac = m.group(2)
-
-                # Replace plurals
-                frac = re.sub(r'(\w+)s(\b)', '\g<1>\g<2>', frac)
-
-                # Convert 'a' to 'one' (e.g., 'a third' to 'one third')
-                frac = re.sub(r'(\b)a(\b)', '\g<1>one\g<2>', frac)
-
-                split = frac.split(' ')
-
-                # Split fraction into num (regular integer), denom (ordinal)
-                num = split[:1]
-                denom = split[1:]
-
-                while denom:
-                    try:
-                        # Test for valid num, denom
-                        num_value = self.parse(' '.join(num))
-                        denom_value = self.parse(' '.join(denom))
-                        return whole + float(num_value) / denom_value
-                    except:
-                        # Add another word to num
-                        num += denom[:1]
-                        denom = denom[1:]
-            return None
-
         # Extract "one point two five"-type float
         result = pointFloat(words)
         if result:
             return result
 
         # Extract "one and a quarter"-type float
-        result = fractionFloat(words)
+        result = self.fractionFloat(words)
         if result:
             return result
 
@@ -215,10 +221,10 @@ class NumberService(object):
             g = 0
             for w in a:
                 x = NumberService.__small__.get(w, None)
-                if x is not None:
-                    g += x
-                elif w == "hundred":
+                if w == "hundred":
                     g *= 100
+                elif x is not None:
+                    g += x
                 else:
                     x = NumberService.__magnitude__.get(w, None)
                     if x is not None:
