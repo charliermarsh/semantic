@@ -1,7 +1,10 @@
 import re
 import datetime
-from itertools import izip_longest
-from numbers import NumberService
+try:
+    from itertools import zip_longest
+except:
+    from itertools import izip_longest as zip_longest
+from .numbers import NumberService
 
 
 class DateService(object):
@@ -136,21 +139,21 @@ class DateService(object):
         )
         .*?""")
 
-    def _preprocess(self, input):
-        return input.replace('-', ' ').lower()
+    def _preprocess(self, inp):
+        return inp.replace('-', ' ').lower()
 
-    def extractDays(self, input):
+    def extractDays(self, inp):
         """Extracts all day-related information from an input string.
         Ignores any information related to the specific time-of-day.
 
         Args:
-            input (str): Input string to be parsed.
+            inp (str): Input string to be parsed.
 
         Returns:
             A list of datetime objects containing the extracted date from the
             input snippet, or an empty list if none found.
         """
-        input = self._preprocess(input)
+        inp = self._preprocess(inp)
 
         def extractDayOfWeek(dayMatch):
             if dayMatch.group(5) in self.__daysOfWeek__:
@@ -179,9 +182,9 @@ class DateService(object):
 
             def numericalPrefix(dayMatch):
                 # Grab 'three' of 'three weeks from'
-                prefix = input.split(dayMatch.group(1))[0].strip().split(' ')
+                prefix = inp.split(dayMatch.group(1))[0].strip().split(' ')
                 prefix.reverse()
-                prefix = filter(lambda s: s != 'and', prefix)
+                prefix = list(filter(lambda s: s != 'and', prefix))
 
                 # Generate best guess number
                 service = NumberService()
@@ -246,25 +249,24 @@ class DateService(object):
 
             return d
 
-        matches = self._dayRegex.finditer(input)
-
+        matches = self._dayRegex.finditer(inp)
         return [handleMatch(dayMatch) for dayMatch in matches]
 
-    def extractDay(self, input):
+    def extractDay(self, inp):
         """Returns the first time-related date found in the input string,
         or None if not found."""
-        day = self.extractDay(input)
+        day = self.extractDay(inp)
         if day:
             return day[0]
         return None
 
-    def extractTimes(self, input):
+    def extractTimes(self, inp):
         """Extracts time-related information from an input string.
         Ignores any information related to the specific date, focusing
         on the time-of-day.
 
         Args:
-            input (str): Input string to be parsed.
+            inp (str): Input string to be parsed.
 
         Returns:
             A list of datetime objects containing the extracted times from the
@@ -333,31 +335,32 @@ class DateService(object):
                     self.now.year, self.now.month, self.now.day, h, m
                 )
 
-        input = self._preprocess(input)
-        return [handleMatch(time) for time in self._timeRegex.finditer(input)]
+        inp = self._preprocess(inp)
+        return [handleMatch(time) for time in self._timeRegex.finditer(inp)]
 
-    def extractTime(self, input):
+    def extractTime(self, inp):
         """Returns the first time-related date found in the input string,
         or None if not found."""
-        times = self.extractTimes(input)
+        times = self.extractTimes(inp)
         if times:
             return times[0]
         return None
 
-    def extractDates(self, input):
+    def extractDates(self, inp):
         """Extract semantic date information from an input string.
         In effect, runs both parseDay and parseTime on the input
         string and merges the results to produce a comprehensive
         datetime object.
 
         Args:
-            input (str): Input string to be parsed.
+            inp (str): Input string to be parsed.
 
         Returns:
             A list of datetime objects containing the extracted dates from the
             input snippet, or an empty list if not found.
         """
-        def merge((day, time)):
+        def merge(param):
+            day, time = param
             if not (day or time):
                 return None
 
@@ -370,16 +373,16 @@ class DateService(object):
                 day.year, day.month, day.day, time.hour, time.minute
             )
 
-        days = self.extractDays(input)
-        times = self.extractTimes(input)
-        return map(merge, izip_longest(days, times, fillvalue=None))
+        days = self.extractDays(inp)
+        times = self.extractTimes(inp)
+        return map(merge, zip_longest(days, times, fillvalue=None))
 
-    def extractDate(self, input):
+    def extractDate(self, inp):
         """Returns the first date found in the input string, or None if not
         found."""
-        dates = self.extractDates(input)
-        if dates:
-            return dates[0]
+        dates = self.extractDates(inp)
+        for date in dates:
+            return date
         return None
 
     def convertDay(self, day, prefix="", weekday=False):
@@ -470,13 +473,13 @@ class DateService(object):
         return dayString + " at " + timeString
 
 
-def extractDates(input, tz=None, now=None):
+def extractDates(inp, tz=None, now=None):
     """Extract semantic date information from an input string.
     This is a convenience method which would only be used if
     you'd rather not initialize a DateService object.
 
     Args:
-        input (str): The input string to be parsed.
+        inp (str): The input string to be parsed.
         tz: An optional Pytz timezone. All datetime objects returned will
             be relative to the supplied timezone, or timezone-less if none
             is supplied.
@@ -489,4 +492,4 @@ def extractDates(input, tz=None, now=None):
         A list of datetime objects extracted from input.
     """
     service = DateService(tz=tz, now=now)
-    return service.extractDates(input)
+    return service.extractDates(inp)
